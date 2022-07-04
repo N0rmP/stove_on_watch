@@ -1,0 +1,14 @@
+C:\Users\Choi\Desktop\2022 여름 프로젝트\temptemptemp_CS\temptemptemp_CS\bin\Debug\netcoreapp3.1\temptemptemp_CS.exe
+C:\Users\Choi\Desktop\2022 여름 프로젝트\temptemptemp_CS\temptemptemp_CS\bin\Debug\netcoreapp3.1\temptemptemp_CS.deps.json
+C:\Users\Choi\Desktop\2022 여름 프로젝트\temptemptemp_CS\temptemptemp_CS\bin\Debug\netcoreapp3.1\temptemptemp_CS.runtimeconfig.json
+C:\Users\Choi\Desktop\2022 여름 프로젝트\temptemptemp_CS\temptemptemp_CS\bin\Debug\netcoreapp3.1\temptemptemp_CS.runtimeconfig.dev.json
+C:\Users\Choi\Desktop\2022 여름 프로젝트\temptemptemp_CS\temptemptemp_CS\bin\Debug\netcoreapp3.1\temptemptemp_CS.dll
+C:\Users\Choi\Desktop\2022 여름 프로젝트\temptemptemp_CS\temptemptemp_CS\bin\Debug\netcoreapp3.1\temptemptemp_CS.pdb
+C:\Users\Choi\Desktop\2022 여름 프로젝트\temptemptemp_CS\temptemptemp_CS\obj\Debug\netcoreapp3.1\temptemptemp_CS.csproj.AssemblyReference.cache
+C:\Users\Choi\Desktop\2022 여름 프로젝트\temptemptemp_CS\temptemptemp_CS\obj\Debug\netcoreapp3.1\temptemptemp_CS.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Choi\Desktop\2022 여름 프로젝트\temptemptemp_CS\temptemptemp_CS\obj\Debug\netcoreapp3.1\temptemptemp_CS.AssemblyInfoInputs.cache
+C:\Users\Choi\Desktop\2022 여름 프로젝트\temptemptemp_CS\temptemptemp_CS\obj\Debug\netcoreapp3.1\temptemptemp_CS.AssemblyInfo.cs
+C:\Users\Choi\Desktop\2022 여름 프로젝트\temptemptemp_CS\temptemptemp_CS\obj\Debug\netcoreapp3.1\temptemptemp_CS.csproj.CoreCompileInputs.cache
+C:\Users\Choi\Desktop\2022 여름 프로젝트\temptemptemp_CS\temptemptemp_CS\obj\Debug\netcoreapp3.1\temptemptemp_CS.dll
+C:\Users\Choi\Desktop\2022 여름 프로젝트\temptemptemp_CS\temptemptemp_CS\obj\Debug\netcoreapp3.1\temptemptemp_CS.pdb
+C:\Users\Choi\Desktop\2022 여름 프로젝트\temptemptemp_CS\temptemptemp_CS\obj\Debug\netcoreapp3.1\temptemptemp_CS.genruntimeconfig.cache
