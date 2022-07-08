@@ -11,7 +11,7 @@ public class random_test
 		seed_arr = new ulong[4];
 	}
 
-	static void Main(string[] args)
+	/*static void Main(string[] args)
 	{
 		random_test main_ran = new random_test();
 
@@ -34,7 +34,7 @@ public class random_test
 		temp /= 100000000;
 		Console.WriteLine("표준 분포 시 평균 : " + temp);
 		Console.WriteLine("end");
-	}
+	}*/
 
 	#region seed_part
 	public void seed_GetNonZeroBytes_arr()
