@@ -8,7 +8,6 @@ namespace temptemptemp_CS
     {
         Node[,] U1;  //UnConnected
         Node[,] U2;  //Connected
-
         public graph_test() {
             U1 = new Node[11, 11];
             U2 = new Node[11, 11];
