@@ -6,6 +6,7 @@ namespace temptemptemp_CS
 {
     class graph_test
     {
+        random_te
         Node[,] U1;  //UnConnected
         Node[,] U2;  //Connected
 

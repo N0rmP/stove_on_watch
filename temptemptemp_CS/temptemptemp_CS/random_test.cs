@@ -4,13 +4,15 @@ using System.Security.Cryptography;
 public class random_test
 {
 	public ulong[] seed_arr;
-	public ulong seed_val;
+	//public ulong seed_val;
 
 	public random_test()
 	{
 		seed_arr = new ulong[4];
+		counter = 0;
 	}
 
+	#region real_test
 	/*static void Main(string[] args)
 	{
 		random_test main_ran = new random_test();
@@ -35,9 +37,21 @@ public class random_test
 		Console.WriteLine("표준 분포 시 평균 : " + temp);
 		Console.WriteLine("end");
 	}*/
+	#endregion real_test
 
 	#region seed_part
-	public void seed_GetNonZeroBytes_arr()
+	private void seed() {
+		Random ran = new Random();
+		byte[] main_temp = new byte[32];
+		ran.NextBytes(main_temp);
+		ran = null;
+		main_ran.seed_arr[0] = BitConverter.ToUInt64(main_temp, 0);
+		main_ran.seed_arr[1] = BitConverter.ToUInt64(main_temp, 8);
+		main_ran.seed_arr[2] = BitConverter.ToUInt64(main_temp, 16);
+		main_ran.seed_arr[3] = BitConverter.ToUInt64(main_temp, 24);
+	}
+
+    /*public void seed_GetNonZeroBytes_arr()
 	{
 		using (var rng = new RNGCryptoServiceProvider())
 		{
@@ -56,28 +70,30 @@ public class random_test
 		ran.NextBytes(temp);
 		this.seed_val = BitConverter.ToUInt64(temp);
 		ran = null;
-	}
-	#endregion seed_part
-	#region generator_part
-	public ulong xoshiro256plus()
+	}*/
+    #endregion seed_part
+
+    #region generator_part
+    public ulong generate()		//xoshiro256
 	{
 		var result = this.seed_arr[0] + this.seed_arr[3];
 
 		var t = this.seed_arr[1] << 17;
-
 		this.seed_arr[2] ^= this.seed_arr[0];
 		this.seed_arr[3] ^= this.seed_arr[1];
 		this.seed_arr[1] ^= this.seed_arr[2];
 		this.seed_arr[0] ^= this.seed_arr[3];
-
 		this.seed_arr[2] ^= t;
-
 		this.seed_arr[3] = BitOperations.RotateLeft(this.seed_arr[3],45);
 
 		return result;
 	}
 
-	public void splitmix()
+	public int rand_range(int r) {
+		return this.generate() % r;
+	}
+
+	/*public void splitmix()
 	{
 		Random ran = new Random();
 		byte[] temp = new byte[8];
@@ -93,6 +109,6 @@ public class random_test
 			result ^= (result >> 31);
 			this.seed_arr[i] = result;
 		}
-	}
+	}*/
 	#endregion generator_part
 }
