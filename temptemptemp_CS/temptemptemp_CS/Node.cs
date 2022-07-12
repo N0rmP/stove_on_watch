@@ -16,14 +16,18 @@ namespace temptemptemp_CS
             this.coor[1] = y;
         }
         public Node() {
-            for (int i = 0; i < 4; i++) { link[i] = null;   /*-1 means it has no link*/}
+            for (int i = 0; i < 4; i++) { this.link[i] = null;   /*-1 means it has no link*/}
             this.visited = false;
         }
 
         public void connect(Node n, int dir) {
-            if (n == null) { return; }
+            if (n == null) { Console.WriteLine("from ("+this.coor[0]+","+this.coor[1]+") direction "+dir+" null node connecting error"); return; }
             this.link[dir] = n;
             n.link[dir < 2 ? dir + 2 : (dir + 2) % 4] = this;
+        }
+
+        public void existence_test() {
+            Console.WriteLine("cordinate of this is : "+this.coor[0]+", "+this.coor[1]);
         }
     }
 }

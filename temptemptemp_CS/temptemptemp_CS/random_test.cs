@@ -4,7 +4,7 @@ using System.Security.Cryptography;
 public class random_test
 {
 	public ulong[] seed_arr;
-	public ulong seed_val;
+	//public ulong seed_val;
 
 	public random_test()
 	{
@@ -37,7 +37,33 @@ public class random_test
 	}*/
 
 	#region seed_part
-	public void seed_GetNonZeroBytes_arr()
+	public void seed() {
+		Random ran = new Random();
+		byte[] main_temp = new byte[32];
+		ran.NextBytes(main_temp);
+		ran = null;
+		for (int i = 0; i < 4; i++) {
+			this.seed_arr[i] = BitConverter.ToUInt64(main_temp, i*8);
+		}
+	}
+
+	public void seed(string desig_seed) {
+		string temp;
+		for (int i = 0; i < 4; i++) {
+			temp = desig_seed.Substring(i * 16, 16);
+			this.seed_arr[i] = Convert.ToUInt64(temp, 16);
+		}
+	}
+
+	public string get_seed() {
+		string result = "";
+		for (int i = 0; i < 4; i++) {
+			result += this.seed_arr[i].ToString("X");
+		}
+		return result;
+	}
+
+	/*public void seed_GetNonZeroBytes_arr()
 	{
 		using (var rng = new RNGCryptoServiceProvider())
 		{
@@ -56,28 +82,30 @@ public class random_test
 		ran.NextBytes(temp);
 		this.seed_val = BitConverter.ToUInt64(temp);
 		ran = null;
-	}
+	}*/
 	#endregion seed_part
+
 	#region generator_part
 	public ulong xoshiro256plus()
 	{
 		var result = this.seed_arr[0] + this.seed_arr[3];
 
 		var t = this.seed_arr[1] << 17;
-
 		this.seed_arr[2] ^= this.seed_arr[0];
 		this.seed_arr[3] ^= this.seed_arr[1];
 		this.seed_arr[1] ^= this.seed_arr[2];
 		this.seed_arr[0] ^= this.seed_arr[3];
-
 		this.seed_arr[2] ^= t;
-
 		this.seed_arr[3] = BitOperations.RotateLeft(this.seed_arr[3],45);
 
 		return result;
 	}
 
-	public void splitmix()
+	public int xoshiro_range(ulong max) {
+		return (int)(xoshiro256plus() % max);
+	}
+
+	/*public void splitmix()
 	{
 		Random ran = new Random();
 		byte[] temp = new byte[8];
@@ -93,6 +121,6 @@ public class random_test
 			result ^= (result >> 31);
 			this.seed_arr[i] = result;
 		}
-	}
+	}*/
 	#endregion generator_part
 }
