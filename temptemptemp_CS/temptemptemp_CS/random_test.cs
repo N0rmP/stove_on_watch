@@ -101,8 +101,9 @@ public class random_test
 		return result;
 	}
 
-	public int xoshiro_range(ulong max) {
-		return (int)(xoshiro256plus() % max);
+	public int xoshiro_range(int max){
+		if (max == 0) { /*Console.WriteLine("zero inputed to xoshiro_range");*/ return 0; }
+		return (int)(xoshiro256plus() % (ulong)max);
 	}
 
 	/*public void splitmix()
