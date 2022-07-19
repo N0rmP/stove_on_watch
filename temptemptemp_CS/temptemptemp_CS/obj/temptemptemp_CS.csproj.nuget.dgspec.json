@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Choi\\Desktop\\2022 여름 프로젝트\\stove_on_watch\\temptemptemp_CS\\temptemptemp_CS\\temptemptemp_CS.csproj": {}
+    "C:\\Users\\c4607\\OneDrive\\Desktop\\stove_on_watch\\temptemptemp_CS\\temptemptemp_CS\\temptemptemp_CS.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Choi\\Desktop\\2022 여름 프로젝트\\stove_on_watch\\temptemptemp_CS\\temptemptemp_CS\\temptemptemp_CS.csproj": {
+    "C:\\Users\\c4607\\OneDrive\\Desktop\\stove_on_watch\\temptemptemp_CS\\temptemptemp_CS\\temptemptemp_CS.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Choi\\Desktop\\2022 여름 프로젝트\\stove_on_watch\\temptemptemp_CS\\temptemptemp_CS\\temptemptemp_CS.csproj",
+        "projectUniqueName": "C:\\Users\\c4607\\OneDrive\\Desktop\\stove_on_watch\\temptemptemp_CS\\temptemptemp_CS\\temptemptemp_CS.csproj",
         "projectName": "temptemptemp_CS",
-        "projectPath": "C:\\Users\\Choi\\Desktop\\2022 여름 프로젝트\\stove_on_watch\\temptemptemp_CS\\temptemptemp_CS\\temptemptemp_CS.csproj",
-        "packagesPath": "C:\\Users\\Choi\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Choi\\Desktop\\2022 여름 프로젝트\\stove_on_watch\\temptemptemp_CS\\temptemptemp_CS\\obj\\",
+        "projectPath": "C:\\Users\\c4607\\OneDrive\\Desktop\\stove_on_watch\\temptemptemp_CS\\temptemptemp_CS\\temptemptemp_CS.csproj",
+        "packagesPath": "C:\\Users\\c4607\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\c4607\\OneDrive\\Desktop\\stove_on_watch\\temptemptemp_CS\\temptemptemp_CS\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\Choi\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\c4607\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -54,7 +54,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.409\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.401\\RuntimeIdentifierGraph.json"
         }
       }
     }

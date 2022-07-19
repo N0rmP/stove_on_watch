@@ -26,3 +26,17 @@ C:\Users\Choi\Desktop\2022 여름 프로젝트\stove_on_watch\temptemptemp_CS\te
 C:\Users\Choi\Desktop\2022 여름 프로젝트\stove_on_watch\temptemptemp_CS\temptemptemp_CS\obj\Debug\netcoreapp3.1\temptemptemp_CS.dll
 C:\Users\Choi\Desktop\2022 여름 프로젝트\stove_on_watch\temptemptemp_CS\temptemptemp_CS\obj\Debug\netcoreapp3.1\temptemptemp_CS.pdb
 C:\Users\Choi\Desktop\2022 여름 프로젝트\stove_on_watch\temptemptemp_CS\temptemptemp_CS\obj\Debug\netcoreapp3.1\temptemptemp_CS.genruntimeconfig.cache
+C:\Users\c4607\OneDrive\Desktop\stove_on_watch\temptemptemp_CS\temptemptemp_CS\bin\Debug\netcoreapp3.1\temptemptemp_CS.exe
+C:\Users\c4607\OneDrive\Desktop\stove_on_watch\temptemptemp_CS\temptemptemp_CS\bin\Debug\netcoreapp3.1\temptemptemp_CS.deps.json
+C:\Users\c4607\OneDrive\Desktop\stove_on_watch\temptemptemp_CS\temptemptemp_CS\bin\Debug\netcoreapp3.1\temptemptemp_CS.runtimeconfig.json
+C:\Users\c4607\OneDrive\Desktop\stove_on_watch\temptemptemp_CS\temptemptemp_CS\bin\Debug\netcoreapp3.1\temptemptemp_CS.runtimeconfig.dev.json
+C:\Users\c4607\OneDrive\Desktop\stove_on_watch\temptemptemp_CS\temptemptemp_CS\bin\Debug\netcoreapp3.1\temptemptemp_CS.dll
+C:\Users\c4607\OneDrive\Desktop\stove_on_watch\temptemptemp_CS\temptemptemp_CS\bin\Debug\netcoreapp3.1\temptemptemp_CS.pdb
+C:\Users\c4607\OneDrive\Desktop\stove_on_watch\temptemptemp_CS\temptemptemp_CS\obj\Debug\netcoreapp3.1\temptemptemp_CS.csproj.AssemblyReference.cache
+C:\Users\c4607\OneDrive\Desktop\stove_on_watch\temptemptemp_CS\temptemptemp_CS\obj\Debug\netcoreapp3.1\temptemptemp_CS.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\c4607\OneDrive\Desktop\stove_on_watch\temptemptemp_CS\temptemptemp_CS\obj\Debug\netcoreapp3.1\temptemptemp_CS.AssemblyInfoInputs.cache
+C:\Users\c4607\OneDrive\Desktop\stove_on_watch\temptemptemp_CS\temptemptemp_CS\obj\Debug\netcoreapp3.1\temptemptemp_CS.AssemblyInfo.cs
+C:\Users\c4607\OneDrive\Desktop\stove_on_watch\temptemptemp_CS\temptemptemp_CS\obj\Debug\netcoreapp3.1\temptemptemp_CS.csproj.CoreCompileInputs.cache
+C:\Users\c4607\OneDrive\Desktop\stove_on_watch\temptemptemp_CS\temptemptemp_CS\obj\Debug\netcoreapp3.1\temptemptemp_CS.dll
+C:\Users\c4607\OneDrive\Desktop\stove_on_watch\temptemptemp_CS\temptemptemp_CS\obj\Debug\netcoreapp3.1\temptemptemp_CS.pdb
+C:\Users\c4607\OneDrive\Desktop\stove_on_watch\temptemptemp_CS\temptemptemp_CS\obj\Debug\netcoreapp3.1\temptemptemp_CS.genruntimeconfig.cache

@@ -10,8 +10,12 @@ namespace temptemptemp_CS
         Node[,] U2;  //Connected
         random_test ran;
         int edge_num;
+        int[,] graph_distancer;
 
         public graph_test() {
+            ran = new random_test();
+            edge_num = 0;
+
             //U1 = new Node[11, 11];
             U2 = new Node[11, 11];
             for (int i = 0; i < 11; i++) {
@@ -20,16 +24,21 @@ namespace temptemptemp_CS
                     U2[i, j] = null;
                 }
             }
-            ran = new random_test();
-
-            edge_num = 0;
+            
+            graph_distancer = new int[4, 121];
+            for (int i = 0; i < 4; i++) {
+                for (int j = 0; j < 121; j++) {
+                    graph_distancer[i, j] = 122;
+                }
+            }
         }
 
         static void Main() {
             graph_test gra = new graph_test();
 
             Node temp1 = new Node(); Node temp2 = new Node(); Node temp3 = new Node(); Node temp4 = new Node();
-            List<int[]> unconnected = new List<int[]>(); List<int[]> temp_route = new List<int[]>(); 
+            List<int[]> unconnected = new List<int[]>(); List<int[]> temp_route = new List<int[]>();
+            List<int> yet_unconnected = new List<int>();
             int ran_num = 0; int route_counter;
 
             //Preparation
@@ -54,7 +63,7 @@ namespace temptemptemp_CS
             else { gra.generator_connect(3, 7, 3,6); gra.generator_connect(3, 7, 4, 7); }
             if (ran_num != 2) { gra.U2[6, 4] = new Node(6, 4); gra.generator_connect(6, 4, 7, 4); gra.generator_connect(6, 4, 6, 3); }
             else { gra.generator_connect(7, 3, 7, 4); gra.generator_connect(7, 3, 6, 3); }
-            if (ran_num != 3) { gra.U2[6, 6] = new Node(4, 6); gra.generator_connect(6, 6, 7, 6); gra.generator_connect(6, 6, 6, 7); }
+            if (ran_num != 3) { gra.U2[6, 6] = new Node(6, 6); gra.generator_connect(6, 6, 7, 6); gra.generator_connect(6, 6, 6, 7); }
             else { gra.generator_connect(7, 7, 7, 6); gra.generator_connect(7, 7, 6, 7); }
 
             //skeletal line generate
@@ -148,7 +157,6 @@ namespace temptemptemp_CS
                 meet_the_U2 = false;
                 while (true) {
                     for (int i = 0; i < 4; i++) {
-
                         if (!(temp_route[route_counter][0] + directions[i] >= 4 & temp_route[route_counter][0] + directions[i] <= 6 & temp_route[route_counter][1] + directions[3-i] >= 4 & temp_route[route_counter][1] + directions[3-i] <= 6) &
                         !temp_route.Contains(new int[] { temp_route[route_counter][0] + directions[i], temp_route[route_counter][1] + directions[3-i] }) &
                         temp_route[route_counter][0] + directions[i] >= 0 & temp_route[route_counter][0] + directions[i] <= 10 & temp_route[route_counter][1] + directions[3-i] >= 0 & temp_route[route_counter][1] + directions[3-i] <= 10) {
@@ -158,7 +166,7 @@ namespace temptemptemp_CS
                                 gra.generator_connect(temp_route[route_counter][0], temp_route[route_counter][1], temp_route[route_counter][0] + directions[i], temp_route[route_counter][1] + directions[3-i]);
                                 gra.U2[temp_route[route_counter][0], temp_route[route_counter][1]].visited = false;
                                 gra.U2[temp_route[route_counter][0] + directions[i], temp_route[route_counter][1] + directions[3-i]].visited = false;
-                                unconnected.Remove(new int[] { temp_route[route_counter][0] + directions[i], temp_route[route_counter][1] + directions[3-i] });
+                                for (int j = 0; j < unconnected.Count; j++) { if (unconnected[j][0] == temp_route[route_counter][0] + directions[i] & unconnected[j][1] == temp_route[route_counter][1] + directions[3 - i]) { unconnected.RemoveAt(j); break; } }
                             } else if (gra.U2[temp_route[route_counter][0] + directions[i], temp_route[route_counter][1] + directions[3-i]].visited) {
                                 gra.generator_connect(temp_route[route_counter][0], temp_route[route_counter][1], temp_route[route_counter][0] + directions[i], temp_route[route_counter][1] + directions[3-i]);
                                 meet_the_U2 = true;
@@ -166,19 +174,44 @@ namespace temptemptemp_CS
                             }
                         }
                     }
-                    if (meet_the_U2) {
+                    /*if (gra.ran.xoshiro_range(2) == 0) { for (int i = 0; i < 4; i++) { directions[i] *= -1; } }
+                    else { ran_num = directions[0]; directions[0] = directions[2]; directions[2] = ran_num; ran_num = directions[1]; directions[1] = directions[3]; directions[3] = ran_num; }*/
+                    if (meet_the_U2)
+                    {
                         foreach (int[] i in temp_route) { gra.U2[i[0], i[1]].visited = true; }
-                        if (gra.ran.xoshiro_range(2) == 0) { for (int i = 0; i < 4; i++) { directions[i] *= -1; } }
-                        else { ran_num = directions[0]; directions[0] = directions[2]; directions[2] = ran_num; ran_num = directions[1]; directions[1] = directions[3]; directions[3] = ran_num; }
-                        break; 
+                        break;
                     }
                     route_counter++;
                 }
             }
 
+            //additional edge
+            directions = new int[] { -1, 0, 1, 0 };
+            while (gra.edge_num < 143)
+            {
+                ran_num = gra.ran.xoshiro_range(121);
+                if ((ran_num / 11 >= 4 & ran_num / 11 <= 6 & ran_num % 11 >= 4 & ran_num % 11 <= 6) | gra.U2[ran_num / 11, ran_num % 11] == null) { continue; }
+                yet_unconnected.Clear();
+                for (int i = 0; i < 4; i++)
+                {
+                    if (gra.U2[ran_num / 11, ran_num % 11].link[i] == null &
+                    ran_num / 11 + directions[i] >= 0 & ran_num / 11 + directions[i] <= 10 & ran_num % 11 + directions[3 - i] >= 0 & ran_num % 11 + directions[3 - i] <= 10 &
+                    !(ran_num / 11 + directions[i] >= 4 & ran_num / 11 + directions[i] <= 6 & ran_num % 11 + directions[3 - i] >= 4 & ran_num % 11 + directions[3 - i] <= 6))
+                    { yet_unconnected.Add(i); }
+                }
+                if (yet_unconnected.Count == 0) { continue; }
+                route_counter = gra.ran.xoshiro_range(yet_unconnected.Count);
+                gra.generator_connect(ran_num / 11, ran_num % 11, ran_num / 11 + directions[yet_unconnected[route_counter]], ran_num % 11 + directions[3-yet_unconnected[route_counter]]);
+            }
 
             gra.graph_render();
-
+            Console.WriteLine("explor : " + gra.graph_scanner(0, gra.U2[0, 0]));
+            for (int i = 0; i < 11; i++) {
+                for (int j = 0; j < 11; j++) {
+                    Console.Write("{0,-3} ", gra.graph_distancer[0, i * 11 + j]);
+                }
+                Console.WriteLine();
+            }
         }
 
         public void generator_connect(int x1, int y1, int x2, int y2) {
@@ -192,9 +225,8 @@ namespace temptemptemp_CS
                 this.U2[x1, y1].connect(this.U2[x2, y2], temp_dir);
                 this.U2[x1, y1].visited = true;
                 this.U2[x2, y2].visited = true;
+                this.edge_num++;
             }
-
-            this.edge_num++;
         }
 
         public void node_to_node(Node start, Node end)
@@ -254,6 +286,59 @@ namespace temptemptemp_CS
             }
 
             for (int i = 0; i < 21; i++) { Console.WriteLine(graph[i]); }
+        }
+
+        private int graph_scanner(int which, Node begin) {
+            for (int i = 0; i < 11; i++) {
+                for (int j = 0; j < 11; j++) {
+                    if (this.U2[i, j] != null) { this.U2[i, j].visited = false; }
+                }
+            }
+
+            Queue<Node> scanning = new Queue<Node>();
+            Node cur = null;
+            int exploration = -1;
+            int counter = 0;
+            int distance = 122;
+
+            scanning.Enqueue(begin); begin.visited = true;
+            graph_distancer[0, begin.coor[0] * 11 + begin.coor[1]] = 0;
+            while (0 < scanning.Count) {
+                cur = scanning.Dequeue();
+                counter++;
+                if ((cur.coor[0] == 4 | cur.coor[0] == 6) & (cur.coor[1] == 4 | cur.coor[1] == 6) & exploration == -1) {
+                    exploration = counter;
+                }
+
+                distance = 122;
+                for (int i = 0; i < 4; i++) {
+                    if (cur.link[i] != null) {
+                        if (!cur.link[i].visited) { scanning.Enqueue(cur.link[i]); cur.link[i].visited = true; }
+                        distance = Math.Min(distance, this.graph_distancer[which, cur.link[i].coor[0] * 11 + cur.link[i].coor[1]]);
+                    }
+                }
+                if (counter != 0) { this.graph_distancer[which, cur.coor[0] * 11 + cur.coor[1]] = distance + 1; }
+            }
+            return exploration;
+        }
+
+        private void temp_BFS(bool use_random) {
+            Queue<Node> scanning = new Queue<Node>();
+            Node cur = null;
+
+            int temp_ran = -1;
+            while (true) {
+                temp_ran = ran.xoshiro_range(121);
+                if (temp_ran / 11 < 4 | temp_ran / 11 > 6 | temp_ran % 11 < 4 | temp_ran % 11 > 6) { break; }
+            }
+            U2[temp_ran / 11, temp_ran % 11] = new Node(temp_ran / 11, temp_ran % 11);
+
+            int[] directions = new int[4] { 0, 0, 1, -1 };
+            scanning.Enqueue(U2[temp_ran / 11, temp_ran % 11]);
+            while (scanning.Count > 0) { 
+                
+            }
+
         }
     }
 }
