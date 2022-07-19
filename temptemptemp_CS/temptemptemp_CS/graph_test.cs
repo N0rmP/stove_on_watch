@@ -14,23 +14,7 @@ namespace temptemptemp_CS
 
         public graph_test() {
             ran = new random_test();
-            edge_num = 0;
-
-            //U1 = new Node[11, 11];
-            U2 = new Node[11, 11];
-            for (int i = 0; i < 11; i++) {
-                for (int j = 0; j < 11; j++) {
-                    //U1[i, j] = null;
-                    U2[i, j] = null;
-                }
-            }
-            
-            graph_distancer = new int[4, 121];
-            for (int i = 0; i < 4; i++) {
-                for (int j = 0; j < 121; j++) {
-                    graph_distancer[i, j] = 122;
-                }
-            }
+            this.init();
         }
 
         static void Main() {
@@ -38,7 +22,7 @@ namespace temptemptemp_CS
 
             Node temp1 = new Node(); Node temp2 = new Node(); Node temp3 = new Node(); Node temp4 = new Node();
             List<int[]> unconnected = new List<int[]>(); List<int[]> temp_route = new List<int[]>();
-            List<int> yet_unconnected = new List<int>();
+            List<int> yet_un = new List<int>();
             int ran_num = 0; int route_counter;
 
             //Preparation
@@ -161,8 +145,8 @@ namespace temptemptemp_CS
                         !temp_route.Contains(new int[] { temp_route[route_counter][0] + directions[i], temp_route[route_counter][1] + directions[3-i] }) &
                         temp_route[route_counter][0] + directions[i] >= 0 & temp_route[route_counter][0] + directions[i] <= 10 & temp_route[route_counter][1] + directions[3-i] >= 0 & temp_route[route_counter][1] + directions[3-i] <= 10) {
                             if (gra.U2[temp_route[route_counter][0] + directions[i], temp_route[route_counter][1] + directions[3-i]] == null) {
-                                ran_num = gra.ran.xoshiro_range(temp_route.Count - route_counter - 1);
-                                temp_route.Insert(route_counter + ran_num + 1, new int[] { temp_route[route_counter][0] + directions[i], temp_route[route_counter][1] + directions[3-i] });
+                                ran_num = gra.ran.xoshiro_range(temp_route.Count - route_counter - 1) + 1;
+                                temp_route.Insert(route_counter + ran_num, new int[] { temp_route[route_counter][0] + directions[i], temp_route[route_counter][1] + directions[3-i] });
                                 gra.generator_connect(temp_route[route_counter][0], temp_route[route_counter][1], temp_route[route_counter][0] + directions[i], temp_route[route_counter][1] + directions[3-i]);
                                 gra.U2[temp_route[route_counter][0], temp_route[route_counter][1]].visited = false;
                                 gra.U2[temp_route[route_counter][0] + directions[i], temp_route[route_counter][1] + directions[3-i]].visited = false;
@@ -191,18 +175,20 @@ namespace temptemptemp_CS
             {
                 ran_num = gra.ran.xoshiro_range(121);
                 if ((ran_num / 11 >= 4 & ran_num / 11 <= 6 & ran_num % 11 >= 4 & ran_num % 11 <= 6) | gra.U2[ran_num / 11, ran_num % 11] == null) { continue; }
-                yet_unconnected.Clear();
+                yet_un.Clear();
                 for (int i = 0; i < 4; i++)
                 {
                     if (gra.U2[ran_num / 11, ran_num % 11].link[i] == null &
                     ran_num / 11 + directions[i] >= 0 & ran_num / 11 + directions[i] <= 10 & ran_num % 11 + directions[3 - i] >= 0 & ran_num % 11 + directions[3 - i] <= 10 &
                     !(ran_num / 11 + directions[i] >= 4 & ran_num / 11 + directions[i] <= 6 & ran_num % 11 + directions[3 - i] >= 4 & ran_num % 11 + directions[3 - i] <= 6))
-                    { yet_unconnected.Add(i); }
+                    { yet_un.Add(i); }
                 }
-                if (yet_unconnected.Count == 0) { continue; }
-                route_counter = gra.ran.xoshiro_range(yet_unconnected.Count);
-                gra.generator_connect(ran_num / 11, ran_num % 11, ran_num / 11 + directions[yet_unconnected[route_counter]], ran_num % 11 + directions[3-yet_unconnected[route_counter]]);
+                if (yet_un.Count == 0) { continue; }
+                route_counter = gra.ran.xoshiro_range(yet_un.Count);
+                gra.generator_connect(ran_num / 11, ran_num % 11, ran_num / 11 + directions[yet_un[route_counter]], ran_num % 11 + directions[3-yet_un[route_counter]]);
             }
+
+            gra.temp_BFS(false);
 
             gra.graph_render();
             Console.WriteLine("explor : " + gra.graph_scanner(0, gra.U2[0, 0]));
@@ -211,6 +197,28 @@ namespace temptemptemp_CS
                     Console.Write("{0,-3} ", gra.graph_distancer[0, i * 11 + j]);
                 }
                 Console.WriteLine();
+            }
+        }
+
+        private void init() {
+            edge_num = 0;
+            //U1 = new Node[11, 11];
+            U2 = new Node[11, 11];
+            for (int i = 0; i < 11; i++)
+            {
+                for (int j = 0; j < 11; j++)
+                {
+                    //U1[i, j] = null;
+                    U2[i, j] = null;
+                }
+            }
+            graph_distancer = new int[4, 121];
+            for (int i = 0; i < 4; i++)
+            {
+                for (int j = 0; j < 121; j++)
+                {
+                    graph_distancer[i, j] = 122;
+                }
             }
         }
 
@@ -317,16 +325,19 @@ namespace temptemptemp_CS
                         distance = Math.Min(distance, this.graph_distancer[which, cur.link[i].coor[0] * 11 + cur.link[i].coor[1]]);
                     }
                 }
-                if (counter != 0) { this.graph_distancer[which, cur.coor[0] * 11 + cur.coor[1]] = distance + 1; }
+                if (counter != 1) { this.graph_distancer[which, cur.coor[0] * 11 + cur.coor[1]] = distance + 1; }
             }
             return exploration;
         }
 
         private void temp_BFS(bool use_random) {
-            Queue<Node> scanning = new Queue<Node>();
-            Node cur = null;
+            this.init();
 
-            int temp_ran = -1;
+            List<Node> scanning = new List<Node>();
+            List<int> yet_un = new List<int>();
+            Node cur = null;
+            int temp_ran = -1; int temp = 0;
+
             while (true) {
                 temp_ran = ran.xoshiro_range(121);
                 if (temp_ran / 11 < 4 | temp_ran / 11 > 6 | temp_ran % 11 < 4 | temp_ran % 11 > 6) { break; }
@@ -334,11 +345,58 @@ namespace temptemptemp_CS
             U2[temp_ran / 11, temp_ran % 11] = new Node(temp_ran / 11, temp_ran % 11);
 
             int[] directions = new int[4] { 0, 0, 1, -1 };
-            scanning.Enqueue(U2[temp_ran / 11, temp_ran % 11]);
-            while (scanning.Count > 0) { 
-                
+            scanning.Add(U2[temp_ran / 11, temp_ran % 11]);
+            U2[temp_ran / 11, temp_ran % 11].visited = true;
+            while (scanning.Count > temp) {
+                cur = scanning[temp];
+                for (int i = 0; i < 4; i++) {
+                    if ((cur.coor[0] + directions[i] < 4 | cur.coor[0] + directions[i] > 6 | cur.coor[1] + directions[3 - i] < 4 | cur.coor[1] + directions[3 - i] > 6) &
+                    (cur.coor[0] + directions[i] >= 0 & cur.coor[0] + directions[i] <= 10 & cur.coor[1] + directions[3 - i] >= 0 & cur.coor[1] + directions[3 - i] <= 10))
+                    {
+                        if (U2[cur.coor[0] + directions[i], cur.coor[1] + directions[3 - i]] == null)
+                        {
+                            U2[cur.coor[0] + directions[i], cur.coor[1] + directions[3 - i]] = new Node(cur.coor[0] + directions[i], cur.coor[1] + directions[3 - i]);
+                            this.generator_connect(cur.coor[0], cur.coor[1], cur.coor[0] + directions[i], cur.coor[1] + directions[3 - i]);
+                            if (use_random)
+                            {
+                                temp_ran = ran.xoshiro_range(scanning.Count - temp - 1) + 1;
+                                scanning.Insert(temp + temp_ran, U2[cur.coor[0] + directions[i], cur.coor[1] + directions[3 - i]]);
+                            }
+                            else
+                            {
+                                scanning.Add(U2[cur.coor[0] + directions[i], cur.coor[1] + directions[3 - i]]);
+                            }
+                        }
+                    }
+                }
+                temp++;
             }
-
+            temp_ran = ran.xoshiro_range(4);
+            if (temp_ran != 0) { U2[4, 4] = new Node(4, 4); generator_connect(4, 4, 3, 4); generator_connect(4, 4, 4, 3); }
+            else { generator_connect(3, 3, 3, 4); generator_connect(3, 3, 4, 3); }
+            if (temp_ran != 1) { U2[4, 6] = new Node(4, 6); generator_connect(4, 6, 3, 6); generator_connect(4, 6, 4, 7); }
+            else { generator_connect(3, 7, 3, 6); generator_connect(3, 7, 4, 7); }
+            if (temp_ran != 2) { U2[6, 4] = new Node(6, 4); generator_connect(6, 4, 7, 4); generator_connect(6, 4, 6, 3); }
+            else { generator_connect(7, 3, 7, 4); generator_connect(7, 3, 6, 3); }
+            if (temp_ran != 3) { U2[6, 6] = new Node(6, 6); generator_connect(6, 6, 7, 6); generator_connect(6, 6, 6, 7); }
+            else { generator_connect(7, 7, 7, 6); generator_connect(7, 7, 6, 7); }
+            //additional edge
+            while (edge_num < 143)
+            {
+                temp_ran = ran.xoshiro_range(121);
+                if ((temp_ran / 11 >= 4 & temp_ran / 11 <= 6 & temp_ran % 11 >= 4 & temp_ran % 11 <= 6) | U2[temp_ran / 11, temp_ran % 11] == null) { continue; }
+                yet_un.Clear();
+                for (int i = 0; i < 4; i++)
+                {
+                    if (U2[temp_ran / 11, temp_ran % 11].link[i] == null &
+                    temp_ran / 11 + directions[i] >= 0 & temp_ran / 11 + directions[i] <= 10 & temp_ran % 11 + directions[3 - i] >= 0 & temp_ran % 11 + directions[3 - i] <= 10 &
+                    !(temp_ran / 11 + directions[i] >= 4 & temp_ran / 11 + directions[i] <= 6 & temp_ran % 11 + directions[3 - i] >= 4 & temp_ran % 11 + directions[3 - i] <= 6))
+                    { yet_un.Add(i); }
+                }
+                if (yet_un.Count == 0) { continue; }
+                temp = ran.xoshiro_range(yet_un.Count);
+                generator_connect(temp_ran / 11, temp_ran % 11, temp_ran / 11 + directions[yet_un[temp]], temp_ran % 11 + directions[3 - yet_un[temp]]);
+            }
         }
     }
 }
