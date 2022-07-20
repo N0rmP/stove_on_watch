@@ -106,6 +106,12 @@ public class random_test
 		return (int)(xoshiro256plus() % (ulong)max);
 	}
 
+	public int xoshiro_range(int min, int max) {
+		if (max < min) { return -1; }
+		if (max == min) { return min; }
+		return (int)(xoshiro256plus() % (ulong)(max - min)) + min;
+	}
+
 	/*public void splitmix()
 	{
 		Random ran = new Random();

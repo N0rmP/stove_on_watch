@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Linq;
 
 namespace temptemptemp_CS
 {
     class graph_test
     {
-        //Node[,] U1;  //UnConnected
         Node[,] U2;  //Connected
         random_test ran;
         int edge_num;
@@ -14,32 +14,31 @@ namespace temptemptemp_CS
 
         public graph_test() {
             ran = new random_test();
+            ran.seed();
             this.init();
         }
 
         static void Main() {
             graph_test gra = new graph_test();
 
-            Node temp1 = new Node(); Node temp2 = new Node(); Node temp3 = new Node(); Node temp4 = new Node();
+            int[] safes = new int[4];
+            List<int> area_control = new List<int>();
+            List<int> exploration = new List<int>();
+
+            for (int n = 0; n < 1000000; n++)
+            {
+                
+                //new algorithm
+                Node temp1 = new Node(); Node temp2 = new Node(); Node temp3 = new Node(); Node temp4 = new Node();
             List<int[]> unconnected = new List<int[]>(); List<int[]> temp_route = new List<int[]>();
             List<int> yet_un = new List<int>();
             int ran_num = 0; int route_counter;
 
-            //Preparation
-            /*for (int i = 0; i < 11; i++) {
-                for (int j = 0; j < 11; j++) {
-                    if (i < 4 | i > 6 | j < 4 | j > 6)
-                    {
-                        gra.U1[i, j] = new Node(i, j);
-                    }
-                }
-            }*/
             gra.generator_connect(0, 0, 0, 1); gra.generator_connect(0, 0, 1, 0);
             gra.generator_connect(0, 10, 0, 9); gra.generator_connect(0, 10, 1, 10);
             gra.generator_connect(10, 0, 10, 1); gra.generator_connect(10, 0, 9, 0);
             gra.generator_connect(10, 10, 10, 9); gra.generator_connect(10, 10, 9, 10);
             //abvoe_outline start node connect, below_middle elite node connect
-            gra.ran.seed();
             ran_num = gra.ran.xoshiro_range(4);
             if (ran_num != 0) { gra.U2[4, 4] = new Node(4, 4); gra.generator_connect(4, 4, 3, 4); gra.generator_connect(4, 4, 4, 3); }
             else { gra.generator_connect(3, 3, 3, 4); gra.generator_connect(3, 3, 4, 3); }
@@ -145,8 +144,8 @@ namespace temptemptemp_CS
                         !temp_route.Contains(new int[] { temp_route[route_counter][0] + directions[i], temp_route[route_counter][1] + directions[3-i] }) &
                         temp_route[route_counter][0] + directions[i] >= 0 & temp_route[route_counter][0] + directions[i] <= 10 & temp_route[route_counter][1] + directions[3-i] >= 0 & temp_route[route_counter][1] + directions[3-i] <= 10) {
                             if (gra.U2[temp_route[route_counter][0] + directions[i], temp_route[route_counter][1] + directions[3-i]] == null) {
-                                ran_num = gra.ran.xoshiro_range(temp_route.Count - route_counter - 1) + 1;
-                                temp_route.Insert(route_counter + ran_num, new int[] { temp_route[route_counter][0] + directions[i], temp_route[route_counter][1] + directions[3-i] });
+                                ran_num = gra.ran.xoshiro_range(route_counter +1, temp_route.Count);
+                                temp_route.Insert(ran_num, new int[] { temp_route[route_counter][0] + directions[i], temp_route[route_counter][1] + directions[3-i] });
                                 gra.generator_connect(temp_route[route_counter][0], temp_route[route_counter][1], temp_route[route_counter][0] + directions[i], temp_route[route_counter][1] + directions[3-i]);
                                 gra.U2[temp_route[route_counter][0], temp_route[route_counter][1]].visited = false;
                                 gra.U2[temp_route[route_counter][0] + directions[i], temp_route[route_counter][1] + directions[3-i]].visited = false;
@@ -158,8 +157,8 @@ namespace temptemptemp_CS
                             }
                         }
                     }
-                    /*if (gra.ran.xoshiro_range(2) == 0) { for (int i = 0; i < 4; i++) { directions[i] *= -1; } }
-                    else { ran_num = directions[0]; directions[0] = directions[2]; directions[2] = ran_num; ran_num = directions[1]; directions[1] = directions[3]; directions[3] = ran_num; }*/
+                    //if (gra.ran.xoshiro_range(2) == 0) { for (int i = 0; i < 4; i++) { directions[i] *= -1; } }
+                    //else { ran_num = directions[0]; directions[0] = directions[2]; directions[2] = ran_num; ran_num = directions[1]; directions[1] = directions[3]; directions[3] = ran_num; }
                     if (meet_the_U2)
                     {
                         foreach (int[] i in temp_route) { gra.U2[i[0], i[1]].visited = true; }
@@ -188,31 +187,50 @@ namespace temptemptemp_CS
                 gra.generator_connect(ran_num / 11, ran_num % 11, ran_num / 11 + directions[yet_un[route_counter]], ran_num % 11 + directions[3-yet_un[route_counter]]);
             }
 
-            gra.temp_BFS(false);
+                //gra.temp_BFS(true);
 
-            gra.graph_render();
-            Console.WriteLine("explor : " + gra.graph_scanner(0, gra.U2[0, 0]));
-            for (int i = 0; i < 11; i++) {
-                for (int j = 0; j < 11; j++) {
-                    Console.Write("{0,-3} ", gra.graph_distancer[0, i * 11 + j]);
+                //graph scan, exploration collect
+                //gra.graph_render();
+                exploration.Add(gra.graph_scanner(0, gra.U2[0, 0]));
+                exploration.Add(gra.graph_scanner(1, gra.U2[0, 10])); 
+                exploration.Add(gra.graph_scanner(2, gra.U2[10, 0])); 
+                exploration.Add(gra.graph_scanner(3, gra.U2[10, 10]));
+                gra.graph_safer();
+
+                //area_control collect
+                for (int i = 0; i < 4; i++) { safes[i] = 0; }
+                for (int i = 0; i < 11; i++)
+                {
+                    for (int j = 0; j < 11; j++)
+                    {
+                        if (gra.graph_distancer[4, i * 11 + j] != -1) { safes[gra.graph_distancer[4, i * 11 + j]]++; }
+                    }
                 }
-                Console.WriteLine();
+                for (int i = 0; i < 4; i++) { area_control.Add(safes[i]); }
             }
+            //area_control total average
+            Console.WriteLine("area_control total average : " + area_control.Average());
+
+            //exploration total standard derivation
+            double av = exploration.Average();
+            double variance = 0.0d;
+            foreach (int e in exploration) {
+                variance += Math.Pow(e - av, 2);
+            }
+            Console.WriteLine("exploration total standard derivation : " + Math.Sqrt(variance / (double)exploration.Count));
         }
 
         private void init() {
             edge_num = 0;
-            //U1 = new Node[11, 11];
             U2 = new Node[11, 11];
             for (int i = 0; i < 11; i++)
             {
                 for (int j = 0; j < 11; j++)
                 {
-                    //U1[i, j] = null;
                     U2[i, j] = null;
                 }
             }
-            graph_distancer = new int[4, 121];
+            graph_distancer = new int[5, 121];
             for (int i = 0; i < 4; i++)
             {
                 for (int j = 0; j < 121; j++)
@@ -223,8 +241,6 @@ namespace temptemptemp_CS
         }
 
         public void generator_connect(int x1, int y1, int x2, int y2) {
-            /*if (U1[x1, y1] != null & U2[x1, y1] == null) { U2[x1, y1] = U1[x1, y1]; U1[x1, y1] = null; }
-            if (U1[x2, y2] != null & U2[x2, y2] == null) { U2[x2, y2] = U1[x2, y2]; U1[x2, y2] = null; }*/
             if (U2[x1, y1] == null) { U2[x1, y1] = new Node(x1, y1); }
             if (U2[x2, y2] == null) { U2[x2, y2] = new Node(x2, y2); }
 
@@ -310,7 +326,7 @@ namespace temptemptemp_CS
             int distance = 122;
 
             scanning.Enqueue(begin); begin.visited = true;
-            graph_distancer[0, begin.coor[0] * 11 + begin.coor[1]] = 0;
+            graph_distancer[which, begin.coor[0] * 11 + begin.coor[1]] = 0;
             while (0 < scanning.Count) {
                 cur = scanning.Dequeue();
                 counter++;
@@ -328,6 +344,32 @@ namespace temptemptemp_CS
                 if (counter != 1) { this.graph_distancer[which, cur.coor[0] * 11 + cur.coor[1]] = distance + 1; }
             }
             return exploration;
+        }
+
+        private void graph_safer() {
+            int mini = 122; int mini2 = 122; int which_tile = -1;
+            for (int i = 0; i < 121; i++) {
+                mini = 122; mini2 = 122;
+                for (int j = 0; j < 4; j++) {
+                    if (this.graph_distancer[j, i] < mini)
+                    {
+                        mini2 = mini; mini = this.graph_distancer[j, i];
+                        which_tile = j;
+                    }
+                    else if (this.graph_distancer[j, i] < mini2) {
+                        mini2 = this.graph_distancer[j, i];
+                    }
+                }
+                if (mini <= mini2 * 13 / 27.0f)
+                {
+                    //Console.Write((mini2 * 13 / 27.0f) + ", " + (mini <= mini2 * 13 / 27.0f) + " / ");
+                    graph_distancer[4, i] = which_tile;
+                }
+                else {
+                    graph_distancer[4, i] = -1;
+                }
+            }
+
         }
 
         private void temp_BFS(bool use_random) {
@@ -355,12 +397,12 @@ namespace temptemptemp_CS
                     {
                         if (U2[cur.coor[0] + directions[i], cur.coor[1] + directions[3 - i]] == null)
                         {
-                            U2[cur.coor[0] + directions[i], cur.coor[1] + directions[3 - i]] = new Node(cur.coor[0] + directions[i], cur.coor[1] + directions[3 - i]);
+                            //U2[cur.coor[0] + directions[i], cur.coor[1] + directions[3 - i]] = new Node(cur.coor[0] + directions[i], cur.coor[1] + directions[3 - i]);
                             this.generator_connect(cur.coor[0], cur.coor[1], cur.coor[0] + directions[i], cur.coor[1] + directions[3 - i]);
                             if (use_random)
                             {
-                                temp_ran = ran.xoshiro_range(scanning.Count - temp - 1) + 1;
-                                scanning.Insert(temp + temp_ran, U2[cur.coor[0] + directions[i], cur.coor[1] + directions[3 - i]]);
+                                temp_ran = ran.xoshiro_range(temp + 1, scanning.Count);
+                                scanning.Insert(temp_ran, U2[cur.coor[0] + directions[i], cur.coor[1] + directions[3 - i]]);
                             }
                             else
                             {
@@ -380,6 +422,12 @@ namespace temptemptemp_CS
             else { generator_connect(7, 3, 7, 4); generator_connect(7, 3, 6, 3); }
             if (temp_ran != 3) { U2[6, 6] = new Node(6, 6); generator_connect(6, 6, 7, 6); generator_connect(6, 6, 6, 7); }
             else { generator_connect(7, 7, 7, 6); generator_connect(7, 7, 6, 7); }
+
+            generator_connect(0, 0, 0, 1); generator_connect(0, 0, 1, 0);
+            generator_connect(0, 10, 0, 9); generator_connect(0, 10, 1, 10);
+            generator_connect(10, 0, 10, 1); generator_connect(10, 0, 9, 0);
+            generator_connect(10, 10, 10, 9); generator_connect(10, 10, 9, 10);
+
             //additional edge
             while (edge_num < 143)
             {
