@@ -5,7 +5,7 @@ using System.Threading;
 
 public class GameManager : MonoBehaviour
 {
-    private GameManager g = null;
+    public static GameManager g = null;
 
     xoshiro ran;
     graph_generator gra;
@@ -16,16 +16,13 @@ public class GameManager : MonoBehaviour
     Queue<order_func> order_list;
     Queue<int> order_value_list;
 
-    public delegate int eff_func(bool b, int i);   //b==false means the function is used for calculation, i means action's value such as attack or block
-    private List<eff_func> on_combat_start;
-    private List<eff_func> on_Plr_turn_start;   //also describe 'on_enemy_turn_end' with barricade
-    private List<eff_func> on_action;
-    private List<eff_func> on_attack;
-    private List<eff_func> on_block;
-    private List<eff_func> on_Plr_hp_down;
-    private List<eff_func> on_calm;
-    private List<eff_func> on_Plr_turn_end;     //also describe 'on_enemy_turn_start' with barricade
-    private List<eff_func> on_combat_end;
+    public delegate void eff_none();
+    private List<eff_none> on_combat_start;     //★on 배열 대신, 전투에 참여한 모든 캐릭터의 지정된 함수 실행
+    private List<eff_none> on_Plr_turn_start;   //also describe 'on_enemy_turn_end' with barricade
+    private List<eff_none> on_calm;
+    private List<eff_none> on_Plr_turn_end;     //also describe 'on_enemy_turn_start' with barricade
+    private List<eff_none> on_combat_end;
+    //some on_ array is in thing class, they should be called only when its owner acts
 
     #region combat
     private bool combat_process() {   //★무한루프로 인해 게임 정지 시, 병렬 처리 검색 필요
@@ -47,14 +44,24 @@ public class GameManager : MonoBehaviour
         return true;    //★추후 전투 승리/패배 여부 반환, 게임오버와 연결
     }
 
-    private void turn_end() {   //player calls it with button instantly to prevent click turn_end twice, enemy calls it in its function directly anyway (it's no problem)
-        is_Plr_turn = !is_Plr_turn;
+    #region variant_process
+    public int attack(bool is_simulation, thing giver, int value) {
+        //★다른 스크립트의 delegate 실행방법 검색
+        foreach (eff_exist e in giver.on_attack) {
+            e(value);
+        }
+        
+        return 0;
+        if (is_simulation) { /*★최종 계산된 피해량값*/ }
+        else { /*★상대방의 체력 -(최종 계산된 피해량값)*/ }
     }
-
-    #region trivial_process
-
-    #endregion trivial_process
+    #endregion variant_process
     #endregion combat
+
+    #region get_set
+    public bool get_is_Plr_turn() { return this.is_Plr_turn; }
+    public void set_is_Plr_turn(bool b) { is_Plr_turn = b; } //player calls it with button instantly to prevent click turn_end twice, enemy calls it in its function directly anyway (it's no problem)
+    #endregion get_set
 
     void Awake() {
         if (g == null) { g = this; } else { Destroy(this.gameObject); }

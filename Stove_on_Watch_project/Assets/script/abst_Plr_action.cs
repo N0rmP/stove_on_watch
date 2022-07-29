@@ -13,6 +13,9 @@ public abstract class abst_Plr_action : MonoBehaviour
 
     public abst_Plr_action() {  }
 
+    public void click() {
+        if (GameManager.g.get_is_Plr_turn()) { this.on_use(); }
+    }
     public virtual void on_use() { }    //effect when used the action itself
     public virtual void effect1() { }   //effect activated in some time (ex : when Plr's turn end)
     public virtual void effect2() { }   //effect assisting effect1 (ex : remove it when its effect is over)
