@@ -12,17 +12,8 @@ public class GameManager : MonoBehaviour
 
     private bool is_Plr_turn;
 
-    public delegate void order_func(int i);
-    Queue<order_func> order_list;
-    Queue<int> order_value_list;
-
-    public delegate void eff_none();
-    private List<eff_none> on_combat_start;     //★on 배열 대신, 전투에 참여한 모든 캐릭터의 지정된 함수 실행
-    private List<eff_none> on_Plr_turn_start;   //also describe 'on_enemy_turn_end' with barricade
-    private List<eff_none> on_calm;
-    private List<eff_none> on_Plr_turn_end;     //also describe 'on_enemy_turn_start' with barricade
-    private List<eff_none> on_combat_end;
-    //some on_ array is in thing class, they should be called only when its owner acts
+    //public delegate void order_func(int i);
+    Queue<abst_action> order_list;
 
     #region combat
     private bool combat_process() {   //★무한루프로 인해 게임 정지 시, 병렬 처리 검색 필요
@@ -46,10 +37,6 @@ public class GameManager : MonoBehaviour
 
     #region variant_process
     public int attack(bool is_simulation, thing giver, int value) {
-        //★다른 스크립트의 delegate 실행방법 검색
-        foreach (eff_exist e in giver.on_attack) {
-            e(value);
-        }
         
         return 0;
         if (is_simulation) { /*★최종 계산된 피해량값*/ }

@@ -8,17 +8,20 @@ public class thing : MonoBehaviour
     protected int cur_hp;
     //★플레이어 및 몬스터 스프라이트
 
-    public delegate int eff_exist(int value);    //return conclusional value, it's used for describing card's numbers
-    public List<eff_exist> on_action;   //!
-    public List<eff_exist> on_attack;   //!
-    public List<eff_exist> on_attacked;   //!
-    public List<eff_exist> on_block;    //!
-    public List<eff_exist> on_hp_down;  //!
+    private List<power> powers;
 
-    private Dictionary<string, int> status; //similar to presentative description of on_ array
+    public void init()
+    {
+        this.cur_hp = this.max_hp;
+        if (this.powers == null) { this.powers = new List<power>(); }
+        else { this.powers.Clear(); }
+    }
 
     #region get_set
-    
+    public int get_max_hp() { return this.max_hp; }
+    public void set_max_hp(int i) { this.max_hp = i; }
+    public int get_cur_hp() { return this.cur_hp; }
+    public void set_cur_hp(int i) { this.cur_hp = i; }
     #endregion get_set
 
     // Start is called before the first frame update

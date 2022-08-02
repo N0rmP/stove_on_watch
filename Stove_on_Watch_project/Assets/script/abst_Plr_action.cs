@@ -2,26 +2,25 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public abstract class abst_Plr_action : MonoBehaviour
+public abstract class abst_Plr_action : abst_action
 {
     protected int max_cost;
     protected int max_cooltime;
     protected int cur_cooltime;
-    protected bool is_savable;  //if cost described by ≤ then it's true
-    protected enum concepts { simple, complex, haste, calm, plan }
-    protected concepts[] tag;
+    private int temp_cost;  //save the amount of cost usage between button click and actual use()
+    protected bool is_savable;  //if max cost is described by ≤ then it's true
+    public enum concepts { simple, complex, haste, calm, plan }
+    protected concepts[] tags;
 
-    public abst_Plr_action() {  }
-
-    public void click() {
-        if (GameManager.g.get_is_Plr_turn()) { this.on_use(); }
+    public abst_Plr_action() { 
+        
     }
-    public virtual void on_use() { }    //effect when used the action itself
-    public virtual void effect1() { }   //effect activated in some time (ex : when Plr's turn end)
-    public virtual void effect2() { }   //effect assisting effect1 (ex : remove it when its effect is over)
-    public virtual void update() { }    //update its description or max cost
 
-    public virtual void cooldown() {
-        this.cur_cooltime--;   
+    #region get_set
+    public void set_cur_cooltime(bool is_plus, int i) {
+        if (is_plus) { this.cur_cooltime = (this.cur_cooltime + i < 0) ? 0 : this.cur_cooltime + i; }
+        else { this.cur_cooltime = (i < 0) ? 0 : i; }
+        //★사용 가능 여부와 불가능 여부 표현할 방법 찾기
     }
+    #endregion get_set
 }
