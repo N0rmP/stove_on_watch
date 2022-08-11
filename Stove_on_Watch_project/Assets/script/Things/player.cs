@@ -9,12 +9,10 @@ public class player : thing
     private int cur_hope;
 
     private List<abst_Plr_action> inventory;
-    private List<abst_Plr_action> actions;
+    public List<abst_Plr_action> actions;   //¡Ú
 
     public player() {
         this.init();
-        actions.Add(new temp_action()); //¡Ú
-        GameManager.g.temp_butt.GetComponent<Plr_action_button>().set_target(this.actions[0]);
     }
 
     public void init()

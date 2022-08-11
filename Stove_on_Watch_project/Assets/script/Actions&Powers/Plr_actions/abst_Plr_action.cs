@@ -15,8 +15,16 @@ public abstract class abst_Plr_action : abst_action
     protected player owner;
 
     public abst_Plr_action() {
+        Debug.Log("abst_Plr_action creator called");
         this.owner = GameManager.g.get_Plr();
     }
+
+    public override void use() {
+        this.effect();
+        GameManager.g.last_used = this; 
+    }
+
+    protected abstract void effect();
 
     protected int cost_choice() {
         //★슬라이더를 사용해 this.max_cost 이하의 희망 사용량 지정

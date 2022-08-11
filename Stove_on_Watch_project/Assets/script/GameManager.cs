@@ -7,13 +7,13 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager g = null;
 
-    xoshiro ran;
+    public xoshiro ran;
     graph_generator gra;
 
     private bool is_Plr_turn;
 
     //public delegate void order_func(int i);
-    public Queue<abst_Plr_action> order_list;
+    public Queue<abst_action> order_list;
     public abst_Plr_action last_used;
 
     private player Plr;
@@ -25,7 +25,7 @@ public class GameManager : MonoBehaviour
     #region preparation
     public void init()
     {
-        if (order_list == null) { order_list = new Queue<abst_Plr_action>(); } else { order_list.Clear(); }
+        if (order_list == null) { order_list = new Queue<abst_action>(); } else { order_list.Clear(); }
         last_used = null; 
         if (combat_opponents == null) { combat_opponents = new List<abst_enemy>(); } else { combat_opponents.Clear(); }
         if (wondering_opponents == null) { wondering_opponents = new List<abst_enemy>(); } else { wondering_opponents.Clear(); }
@@ -40,32 +40,29 @@ public class GameManager : MonoBehaviour
     #endregion preparation
 
     #region combat
-    private bool combat_process() {   //★무한루프로 인해 게임 정지 시, 병렬 처리 검색 필요
+    IEnumerator combat_process()
+    {
         bool temp_Plr_turn = true;  //describes whose turn is it now during current acction, it can be different from it in actual turn
         abst_Plr_action temp_Plr_action;
-        int blocking_infinity=0;
 
         this.is_Plr_turn = true;
-        while (true) {
+        while (true)
+        {
             //★if is_Plr_turn : on_Plr_turn_start
-            while (temp_Plr_turn == this.is_Plr_turn | order_list.Count > 0) {
+            while (temp_Plr_turn == this.is_Plr_turn | order_list.Count > 0)
+            {
                 if (order_list.Count > 0)
                 {
-                    temp_Plr_action = order_list.Dequeue();
-                    temp_Plr_action.use();
-                    last_used = temp_Plr_action;
+                    order_list.Dequeue().use();
                 }
                 this.testing();
-                //Thread.Sleep(10); //★유니티가 통째로 멈출 가능성 높음
-
-                blocking_infinity++; Debug.Log(blocking_infinity);//★
-                if (blocking_infinity >= 2000) { break; }
+                yield return new WaitForSeconds(0.05f);
             }
             break;  //★
             temp_Plr_turn = this.is_Plr_turn;
             //★if is_Plr_turn : on_Plr_turn_end
         }
-        return true;    //★추후 전투 승리/패배 여부 반환, 게임오버와 연결
+        //return true;    //★추후 전투 승리/패배 여부 반환, 게임오버와 연결
     }
 
     #region variant_process
@@ -83,17 +80,19 @@ public class GameManager : MonoBehaviour
     }
     public void haste(thing receiver) {
         //foreach (abst_power a in receiver.powers) { a.on_before_haste(); }
-        this.last_used.set_cur_cooltime(true, -1);
+        if (last_used != null) { this.last_used.set_cur_cooltime(true, -1); }
+        else { Debug.Log("thers's no last_used yet"); }//★
         //foreach (abst_power a in receiver.powers) { a.on_after_haste(); }
     }
     #endregion variant_process
-
     #endregion combat
 
     #region get_set
     public bool get_is_Plr_turn() { return this.is_Plr_turn; }
     public void set_is_Plr_turn(bool b) { is_Plr_turn = b; } //player calls it with button instantly to prevent click turn_end twice, enemy calls it in its function directly anyway (it's no problem)
     public player get_Plr() { return Plr; }
+
+    public Queue<abst_action> get_order_list() { return this.order_list; }
     #endregion get_set
 
     public void testing() { Debug.Log("this is GameManager"); }
@@ -102,11 +101,13 @@ public class GameManager : MonoBehaviour
         if (g == null) { g = this; } else { Destroy(this.gameObject); }
         DontDestroyOnLoad(this.gameObject);
         this.Plr = new player();
+        this.Plr.actions.Add(new temp_action());    //★
+        GameManager.g.temp_butt.GetComponent<Plr_action_button>().set_target(this.Plr.actions[0]);
         this.init();    //★
     }
 
     private void Start()
     {
-        this.combat_process();
+        StartCoroutine("combat_process");
     }
 }

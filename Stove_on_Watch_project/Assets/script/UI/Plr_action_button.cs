@@ -9,7 +9,7 @@ public class Plr_action_button : abst_Plr_action_image
 {
     public int button_order;
     public void in_combat_use() {
-        GameManager.g.order_list.Enqueue(this.get_target());
+        GameManager.g.get_order_list().Enqueue(this.get_target());
         this.gameObject.transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = Convert.ToString(this.get_target().get_cur_cooltime());   //¡Ú
     }
 }

@@ -24,5 +24,6 @@ public class thing
         if (is_plus) { this.cur_hp += i; }
         else { this.cur_hp = i; }
     }
+    public List<abst_power> get_powers() { return this.powers; }
     #endregion get_set
 }

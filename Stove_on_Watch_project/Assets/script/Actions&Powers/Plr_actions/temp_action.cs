@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class temp_action : abst_Plr_action
 {
-    public temp_action() {
+    public temp_action() : base() {
         this.initial_max_cost = 2;
         this.max_cost = 2;
         this.cur_cooltime = 0;
@@ -12,7 +12,7 @@ public class temp_action : abst_Plr_action
         this.tags = new concepts[] { concepts.haste };
         this.power_made_by_this = new temp_power(this);
     }
-    public override void use()
+    protected override void effect()
     {
         GameManager.g.haste(this.owner);
         this.owner.powers.Add(this.power_made_by_this);
