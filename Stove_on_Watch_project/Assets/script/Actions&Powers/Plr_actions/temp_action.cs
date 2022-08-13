@@ -14,6 +14,7 @@ public class temp_action : abst_Plr_action
     }
     protected override void effect()
     {
+        GameManager.g.attack(this.owner, GameManager.g.get_selected(), 10);
         GameManager.g.haste(this.owner);
         this.owner.powers.Add(this.power_made_by_this);
         this.cur_cooltime = 2;

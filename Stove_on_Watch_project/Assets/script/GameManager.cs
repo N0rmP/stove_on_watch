@@ -5,6 +5,8 @@ using System.Threading;
 
 public class GameManager : MonoBehaviour
 {
+    private int left_of_range;
+
     public static GameManager g = null;
 
     public xoshiro ran;
@@ -19,12 +21,14 @@ public class GameManager : MonoBehaviour
     private player Plr;
     private List<abst_enemy> combat_opponents;
     private List<abst_enemy> wondering_opponents;
+    private abst_enemy selected;
 
     public GameObject temp_butt;
 
     #region preparation
     public void init()
     {
+        left_of_range = 5;
         if (order_list == null) { order_list = new Queue<abst_action>(); } else { order_list.Clear(); }
         last_used = null; 
         if (combat_opponents == null) { combat_opponents = new List<abst_enemy>(); } else { combat_opponents.Clear(); }
@@ -68,6 +72,7 @@ public class GameManager : MonoBehaviour
     #region variant_process
     public void attack(thing giver, thing receiver, int value) {
         foreach (abst_power a in giver.powers) { value = a.on_before_attack(receiver, value); }
+        //★방어도 처리
         hp_change(receiver, -value);
         foreach (abst_power a in giver.powers) { value = a.on_after_attack(value); }
     }
@@ -84,13 +89,22 @@ public class GameManager : MonoBehaviour
         else { Debug.Log("thers's no last_used yet"); }//★
         //foreach (abst_power a in receiver.powers) { a.on_after_haste(); }
     }
+    public int ROLL() {
+        //★그래픽 효과 및 지연 처리
+        int result = this.left_of_range + this.ran.xoshiro_range(5);
+        if (result > 5) { this.left_of_range--; }
+        else { this.left_of_range++; }
+        return result;
+    }
     #endregion variant_process
     #endregion combat
 
     #region get_set
     public bool get_is_Plr_turn() { return this.is_Plr_turn; }
-    public void set_is_Plr_turn(bool b) { is_Plr_turn = b; } //player calls it with button instantly to prevent click turn_end twice, enemy calls it in its function directly anyway (it's no problem)
+    public void set_is_Plr_turn() { is_Plr_turn = !is_Plr_turn; }
+    public void set_is_Plr_turn(bool b) { is_Plr_turn = b; }
     public player get_Plr() { return Plr; }
+    public abst_enemy get_selected() { return selected; }
 
     public Queue<abst_action> get_order_list() { return this.order_list; }
     #endregion get_set

@@ -2,7 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class abst_enemy_action : abst_action
+public abstract class abst_enemy_action : abst_action
 {
-    public override void use() { }
+    protected abst_enemy owner;
+
+    public abst_enemy_action(abst_enemy a) {
+        this.owner = a;
+    }
 }
