@@ -6,6 +6,6 @@ public class turn_end : abst_action
 {
     public override void use()
     {
-        GameManager.g.set_is_Plr_turn();
+        GameManager.g.turn_end();
     }
 }

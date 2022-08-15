@@ -20,8 +20,14 @@ public abstract class abst_Plr_action : abst_action
     }
 
     public override void use() {
-        this.effect();
-        GameManager.g.last_used = this; 
+        if (this.cur_cooltime <= 0)
+        {
+            this.effect();
+            GameManager.g.last_used = this;
+        }
+        else {
+            Debug.Log("its in cooltime");
+        }
     }
 
     protected abstract void effect();

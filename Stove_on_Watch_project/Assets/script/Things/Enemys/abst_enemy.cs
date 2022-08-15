@@ -29,7 +29,7 @@ public abstract class abst_enemy : thing
             case 2:
                 this.max_hp = 300; break;
         }
-        if (this.cur_action_list == null) { this.cur_action_list = new List<abst_enemy_action>(); } else { this.cur_action_list.Clear(); }
+        if (this.cur_action_list == null) { this.cur_action_list = this.initial_action_list.ToList<abst_enemy_action>(); } else { this.cur_action_list.Clear(); }
         if (this.discarded_action_list == null) { this.discarded_action_list = new List<abst_enemy_action>(); } else { this.discarded_action_list.Clear(); }
         if (this.next_actions == null) { this.next_actions = new Queue<abst_enemy_action>(); } else { this.next_actions.Clear(); }
         base.init();
@@ -49,7 +49,7 @@ public abstract class abst_enemy : thing
     }
 
     #region action_list
-    protected void action_choice() {
+    public void action_choice() {
         for (int i = 0; i < this.actions_per_turn; i++)
         {
             int temp = GameManager.g.ran.xoshiro_range(this.cur_action_list.Count);
