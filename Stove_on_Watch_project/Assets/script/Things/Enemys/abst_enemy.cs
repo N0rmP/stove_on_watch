@@ -50,9 +50,10 @@ public abstract class abst_enemy : thing
 
     #region action_list
     public void action_choice() {
+        int temp;
         for (int i = 0; i < this.actions_per_turn; i++)
         {
-            int temp = GameManager.g.ran.xoshiro_range(this.cur_action_list.Count);
+            temp = GameManager.g.ran.xoshiro_range(this.cur_action_list.Count);
             this.next_actions.Enqueue(this.cur_action_list[temp]);
             this.cur_action_list.RemoveAt(temp);
             if (this.cur_action_list.Count <= 0) {

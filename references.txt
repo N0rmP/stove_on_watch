@@ -1,0 +1,17 @@
+https://kldp.org/node/104672
+최적화 vs 가독성
+
+https://kldp.org/node/104672
+list의 enumerator가 public struct인 이유
+
+https://wergia.tistory.com/163
+유니티에서의 json 사용
+
+https://postiveground.com/etc/%EC%9C%A0%EB%8B%88%ED%8B%B0-json-%EC%82%AC%EC%9A%A9-%EB%B0%A9%EB%B2%95/
+유니티에서의 json 파일 저장 및 불러오기
+
+https://blog.naver.com/njuhb/140165599614
+가비지 컬렉션 최소화하기
+
+https://hijuworld.tistory.com/32
+가비지 기본 설명

@@ -15,7 +15,6 @@ public abstract class abst_Plr_action : abst_action
     protected player owner;
 
     public abst_Plr_action() {
-        Debug.Log("abst_Plr_action creator called");
         this.owner = GameManager.g.get_Plr();
     }
 

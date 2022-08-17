@@ -13,6 +13,8 @@ public class GameManager : MonoBehaviour
     public xoshiro ran;
     graph_generator gra;
 
+    private node[,] map;
+
     private bool is_Plr_turn;
 
     //public delegate void order_func(int i);
@@ -25,14 +27,14 @@ public class GameManager : MonoBehaviour
     private abst_enemy selected;
 
     #region preparation
-    public void init()
+    public void init()  //GameManager's init() means 'entire reset of the total game'
     {
         left_of_range = 5;
         if (order_list == null) { order_list = new Queue<abst_action>(); } else { order_list.Clear(); }
         last_used = null; 
         if (combat_opponents == null) { combat_opponents = new List<abst_enemy>(); } else { combat_opponents.Clear(); }
         if (wondering_opponents == null) { wondering_opponents = new List<abst_enemy>(); } else { wondering_opponents.Clear(); }
-        //맵 생성
+        map = gra.graph_generate(true);
         //이번 게임의 흑막 결정
         //정예 배치
         //적 배치
@@ -143,7 +145,7 @@ public class GameManager : MonoBehaviour
     void Awake() {
         if (g == null) { g = this; } else { Destroy(this.gameObject); }
         DontDestroyOnLoad(this.gameObject);
-        ran = new xoshiro();
+        ran = new xoshiro(); ran.seed();
         gra = new graph_generator();
         this.Plr = new player();
         this.Plr.actions.Add(new temp_action());    //★

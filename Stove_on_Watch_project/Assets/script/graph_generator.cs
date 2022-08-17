@@ -5,26 +5,27 @@ using UnityEngine;
 public class graph_generator
 {
     node[,] U2;  //means Connected graph
-    xoshiro ran;
     int edge_num;
     //int[,] graph_distancer;
-
-    public graph_generator()
-    {
-        ran = new xoshiro(); ran.seed();    //★추후 GameManager의 난수 생성기로 변경
-        this.init();
-    }
 
     private void init()
     {
         edge_num = 0;
-        U2 = new node[11, 11];
+        U2 = null; U2 = new node[11, 11];
         for (int i = 0; i < 11; i++) { for (int j = 0; j < 11; j++) { U2[i, j] = null; } }
         //graph_distancer = new int[5, 121];
         //for (int i = 0; i < 4; i++) { for (int j = 0; j < 121; j++) { graph_distancer[i, j] = 122; } }
     }
 
-    public void generator_connect(int x1, int y1, int x2, int y2)   //connect 2 nodes in distance 1
+    public node[,] graph_generate(bool is_first_stage) {
+        this.temp_BFS();
+        return this.U2;
+        //★스테이지 단계에 따른 맵 생성 구현
+        //★U2 메모리 해제 방법 강구
+    }
+
+    #region generation
+    private void generator_connect(int x1, int y1, int x2, int y2)   //connect 2 nodes in distance 1
     {
         if (U2[x1, y1] == null) { U2[x1, y1] = new node(x1, y1); }
         if (U2[x2, y2] == null) { U2[x2, y2] = new node(x2, y2); }
@@ -39,7 +40,7 @@ public class graph_generator
         }
     }
 
-    public void node_to_node(node start, node end)
+    private void node_to_node(node start, node end)
     {
         if (start == end) { return; }
 
@@ -60,7 +61,7 @@ public class graph_generator
             }
             else
             {
-                if (this.ran.xoshiro_range(2) == 0) { this.generator_connect(cur.coor[0], cur.coor[1], cur.coor[0] + x_change, cur.coor[1]); cur = cur.link[1 + x_change]; x_gap--; }
+                if (GameManager.g.ran.xoshiro_range(2) == 0) { this.generator_connect(cur.coor[0], cur.coor[1], cur.coor[0] + x_change, cur.coor[1]); cur = cur.link[1 + x_change]; x_gap--; }
                 else { this.generator_connect(cur.coor[0], cur.coor[1], cur.coor[0], cur.coor[1] + y_change); cur = cur.link[2 - y_change]; y_gap--; }
             }
         }
@@ -77,7 +78,7 @@ public class graph_generator
 
         while (true)
         {
-            temp_ran = ran.xoshiro_range(121);
+            temp_ran = GameManager.g.ran.xoshiro_range(121);
             if (temp_ran / 11 < 4 | temp_ran / 11 > 6 | temp_ran % 11 < 4 | temp_ran % 11 > 6) { break; }
         }
         U2[temp_ran / 11, temp_ran % 11] = new node(temp_ran / 11, temp_ran % 11);
@@ -98,7 +99,7 @@ public class graph_generator
                         //U2[cur.coor[0] + directions[i], cur.coor[1] + directions[3 - i]] = new node(cur.coor[0] + directions[i], cur.coor[1] + directions[3 - i]);
                         this.generator_connect(cur.coor[0], cur.coor[1], cur.coor[0] + directions[i], cur.coor[1] + directions[3 - i]);
                         //if (use_random) {
-                        temp_ran = ran.xoshiro_range(temp + 1, scanning.Count);
+                        temp_ran = GameManager.g.ran.xoshiro_range(temp + 1, scanning.Count);
                         scanning.Insert(temp_ran, U2[cur.coor[0] + directions[i], cur.coor[1] + directions[3 - i]]);
                         //} else { scanning.Add(U2[cur.coor[0] + directions[i], cur.coor[1] + directions[3 - i]]); }
                     }
@@ -106,7 +107,7 @@ public class graph_generator
             }
             temp++;
         }
-        temp_ran = ran.xoshiro_range(4);
+        temp_ran = GameManager.g.ran.xoshiro_range(4);
         if (temp_ran != 0) { U2[4, 4] = new node(4, 4); generator_connect(4, 4, 3, 4); generator_connect(4, 4, 4, 3); }
         else { generator_connect(3, 3, 3, 4); generator_connect(3, 3, 4, 3); }
         if (temp_ran != 1) { U2[4, 6] = new node(4, 6); generator_connect(4, 6, 3, 6); generator_connect(4, 6, 4, 7); }
@@ -124,7 +125,7 @@ public class graph_generator
         //additional edge
         while (edge_num < 143)
         {
-            temp_ran = ran.xoshiro_range(121);
+            temp_ran = GameManager.g.ran.xoshiro_range(121);
             if ((temp_ran / 11 >= 4 & temp_ran / 11 <= 6 & temp_ran % 11 >= 4 & temp_ran % 11 <= 6) | U2[temp_ran / 11, temp_ran % 11] == null) { continue; }
             yet_un.Clear();
             for (int i = 0; i < 4; i++)
@@ -135,8 +136,9 @@ public class graph_generator
                 { yet_un.Add(i); }
             }
             if (yet_un.Count == 0) { continue; }
-            temp = ran.xoshiro_range(yet_un.Count);
+            temp = GameManager.g.ran.xoshiro_range(yet_un.Count);
             generator_connect(temp_ran / 11, temp_ran % 11, temp_ran / 11 + directions[yet_un[temp]], temp_ran % 11 + directions[3 - yet_un[temp]]);
         }
     }
+    #endregion generation
 }
