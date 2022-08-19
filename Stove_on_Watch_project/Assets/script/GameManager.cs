@@ -44,6 +44,14 @@ public class GameManager : MonoBehaviour
     }
     #endregion preparation
 
+    #region adventure
+    IEnumerator adventure() { 
+
+
+        yield return null;
+    }
+    #endregion adventure
+
     #region combat
     IEnumerator combat_process()
     {
@@ -148,11 +156,12 @@ public class GameManager : MonoBehaviour
         ran = new xoshiro(); ran.seed();
         gra = new graph_generator();
         this.Plr = new player();
+
         this.Plr.actions.Add(new temp_action());    //¡Ú
-        this.Plr.actions.Add(new temp_action());    //¡Ú
-        this.Plr.actions.Add(new temp_action());    //¡Ú
+        this.Plr.actions.Add(new temp_action());
+        this.Plr.actions.Add(new temp_action());
         GraphicManager.g.combat_Plr_action_button_update();
-        this.init();    //¡Ú
+        this.init();
     }
 
     private void Start()

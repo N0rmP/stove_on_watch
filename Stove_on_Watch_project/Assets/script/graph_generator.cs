@@ -98,10 +98,8 @@ public class graph_generator
                     {
                         //U2[cur.coor[0] + directions[i], cur.coor[1] + directions[3 - i]] = new node(cur.coor[0] + directions[i], cur.coor[1] + directions[3 - i]);
                         this.generator_connect(cur.coor[0], cur.coor[1], cur.coor[0] + directions[i], cur.coor[1] + directions[3 - i]);
-                        //if (use_random) {
                         temp_ran = GameManager.g.ran.xoshiro_range(temp + 1, scanning.Count);
                         scanning.Insert(temp_ran, U2[cur.coor[0] + directions[i], cur.coor[1] + directions[3 - i]]);
-                        //} else { scanning.Add(U2[cur.coor[0] + directions[i], cur.coor[1] + directions[3 - i]]); }
                     }
                 }
             }
