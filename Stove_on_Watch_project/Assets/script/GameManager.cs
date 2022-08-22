@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using System;
 using System.Threading;
 
@@ -14,6 +15,7 @@ public class GameManager : MonoBehaviour
     graph_generator gra;
 
     private node[,] map;
+    private node selected_node;
 
     private bool is_Plr_turn;
 
@@ -24,7 +26,7 @@ public class GameManager : MonoBehaviour
     private player Plr;
     private List<abst_enemy> combat_opponents;
     private List<abst_enemy> wondering_opponents;
-    private abst_enemy selected;
+    private abst_enemy selected_enemy;
 
     #region preparation
     public void init()  //GameManager's init() means 'entire reset of the total game'
@@ -35,20 +37,52 @@ public class GameManager : MonoBehaviour
         if (combat_opponents == null) { combat_opponents = new List<abst_enemy>(); } else { combat_opponents.Clear(); }
         if (wondering_opponents == null) { wondering_opponents = new List<abst_enemy>(); } else { wondering_opponents.Clear(); }
         map = gra.graph_generate(true);
+        GraphicManager.g.init();
+        selected_node = null;
         //이번 게임의 흑막 결정
         //정예 배치
         //적 배치
         //빛기둥 배치
         this.Plr.init();
-        //플레이어 시작 위치 선택?
+        StartCoroutine(departure_select());
     }
     #endregion preparation
 
     #region adventure
-    IEnumerator adventure() { 
+    IEnumerator adventure() {
+        while (true) {
+            yield return null;
+        }
+    }
 
+    IEnumerator node_select(string notice) {
+        node temp = this.selected_node;
+        //★노드를 선택하라는 안내 화면
+        //★모든 node_button의 클릭 가능 여부를 꺼놓고, 이 부분에서 선택가능한 버튼들만 활성화
+        //★만약 취소 가능한 상황일 경우, 취소할 수 있도록 아래 WaitWhile에 조건 추가
+        Debug.Log("before node selection");
+        yield return new WaitWhile(() => temp == this.selected_node);
+        Debug.Log("after node selection");
+        //★활성화된 버튼 사후 처리
+    }
 
-        yield return null;
+    IEnumerator departure_select() {
+        //★GraphicManager에 버튼을 활성화시키는 함수를 만들고, 색 변경 등으로 가시성 확보
+        map[0, 0].get_node_button().GetComponent<Button>().interactable = true;
+        map[0, 10].get_node_button().GetComponent<Button>().interactable = true;
+        map[10, 0].get_node_button().GetComponent<Button>().interactable = true;
+        map[10, 10].get_node_button().GetComponent<Button>().interactable = true;
+        yield return StartCoroutine(node_select("testing"));
+        Plr.set_location(selected_node);
+        ColorBlock temp_colorblock = selected_node.get_node_button().GetComponent<Button>().colors;
+        temp_colorblock.normalColor = new Color(1f, 0f, 0f, 1f);
+        selected_node.get_node_button().GetComponent<Button>().colors = temp_colorblock;
+    }
+
+    IEnumerator move_select() {
+        //★플레이어의 노드와 link로 연결된 노드 버튼만 활성화
+        yield return StartCoroutine("node_select");
+        Plr.set_location(selected_node);
     }
     #endregion adventure
 
@@ -143,9 +177,9 @@ public class GameManager : MonoBehaviour
     public bool get_is_Plr_turn() { return this.is_Plr_turn; }
     public void set_is_Plr_turn(bool b) { is_Plr_turn = b; }
     public player get_Plr() { return Plr; }
-    public abst_enemy get_selected() { return selected; }
-
+    public abst_enemy get_selected_enemy() { return selected_enemy; }
     public Queue<abst_action> get_order_list() { return this.order_list; }
+    public node[,] get_map() { return this.map; }
     #endregion get_set
 
     public void testing() { Debug.Log("this is GameManager"); }
@@ -167,7 +201,7 @@ public class GameManager : MonoBehaviour
     private void Start()
     {
         this.combat_opponents.Add(new temp_enemy());
-        this.selected = this.combat_opponents[0];
-        StartCoroutine("combat_process");
+        this.selected_enemy = this.combat_opponents[0];
+        StartCoroutine(combat_process());
     }
 }

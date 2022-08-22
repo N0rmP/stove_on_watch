@@ -22,7 +22,21 @@ public class GraphicManager : MonoBehaviour
 
     public void init()
     {
-        
+        node[,] temp_map = GameManager.g.get_map();
+        node_buttons = new GameObject[11, 11];
+        for (int i = 0; i < 11; i++)
+        {
+            for (int j = 0; j < 11; j++)
+            {
+                try
+                {
+                    node_buttons[i, j] = Instantiate(this.node_prefab, new Vector2(510 + i * 90, 980 - j * 90), Quaternion.identity, canvas.transform);
+                    temp_map[i, j].set_node_button(node_buttons[i, j]);
+                }
+                catch (Exception e) { }
+                //node size=50, edge size=40, doundary size=65
+            }
+        }
     }
 
     private void Update()
@@ -45,13 +59,13 @@ public class GraphicManager : MonoBehaviour
     }
 
     public void temp_combat_remove() {
-        foreach (GameObject g in combat_Plr_action_buttons) { g.GetComponent<RectTransform>().anchoredPosition.Set(g.GetComponent<RectTransform>().anchoredPosition.x, -640) ; }
-        turn_end_button.GetComponent<RectTransform>().anchoredPosition.Set(1060, turn_end_button.GetComponent<RectTransform>().anchoredPosition.y);
+        foreach (GameObject g in combat_Plr_action_buttons) { g.GetComponent<RectTransform>().anchoredPosition = new Vector2 (g.GetComponent<RectTransform>().anchoredPosition.x, -640) ; }
+        turn_end_button.GetComponent<RectTransform>().anchoredPosition = new Vector2 (1060, turn_end_button.GetComponent<RectTransform>().anchoredPosition.y);
     }
     public void temp_combat_recover()
     {
-        foreach (GameObject g in combat_Plr_action_buttons) { g.GetComponent<RectTransform>().anchoredPosition.Set(g.GetComponent<RectTransform>().anchoredPosition.x, -360); }
-        turn_end_button.GetComponent<RectTransform>().anchoredPosition.Set(793, turn_end_button.GetComponent<RectTransform>().anchoredPosition.y);
+        foreach (GameObject g in combat_Plr_action_buttons) { g.GetComponent<RectTransform>().anchoredPosition = new Vector2(g.GetComponent<RectTransform>().anchoredPosition.x, -360); }
+        turn_end_button.GetComponent<RectTransform>().anchoredPosition = new Vector2 (793, turn_end_button.GetComponent<RectTransform>().anchoredPosition.y);
     }
 
     void Awake()
@@ -60,13 +74,6 @@ public class GraphicManager : MonoBehaviour
         DontDestroyOnLoad(this.gameObject);
 
         tj = new temp_json();
-        node_buttons = new GameObject[11, 11];
-        for (int i = 0; i < 11; i++) {
-            for (int j = 0; j < 11; j++) {
-                node_buttons[i, j] = Instantiate(this.node_prefab, new Vector2(510 + i * 90, 980 - j * 90), Quaternion.identity, canvas.transform);
-                //node size=50, edge size=40, doundary size=65
-            }
-        }
     }
 
     /*private void json_practice()

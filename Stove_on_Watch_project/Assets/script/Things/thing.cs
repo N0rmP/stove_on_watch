@@ -4,15 +4,12 @@ using UnityEngine;
 
 public class thing
 {
-
-
     protected int max_hp;
     protected int cur_hp;
     //★플레이어 및 몬스터 스프라이트
 
     public List<abst_power> powers;
-
-
+    protected node location;
 
     public void init()
     {
@@ -29,5 +26,7 @@ public class thing
         else { this.cur_hp = i; }
     }
     public List<abst_power> get_powers() { return this.powers; }
+    public node get_location() { return this.location; }
+    public void set_location(node n) { this.location = n; /*★개체 이동에 따른 처리*/ }
     #endregion get_set
 }
