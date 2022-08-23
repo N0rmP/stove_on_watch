@@ -5,8 +5,7 @@ using UnityEngine.UI;
 using System;
 using System.Threading;
 
-public class GameManager : MonoBehaviour
-{
+public class GameManager : MonoBehaviour {
     private int left_of_range;
 
     public static GameManager g = null;
@@ -33,85 +32,85 @@ public class GameManager : MonoBehaviour
     {
         left_of_range = 5;
         if (order_list == null) { order_list = new Queue<abst_action>(); } else { order_list.Clear(); }
-        last_used = null; 
+        last_used = null;
         if (combat_opponents == null) { combat_opponents = new List<abst_enemy>(); } else { combat_opponents.Clear(); }
         if (wondering_opponents == null) { wondering_opponents = new List<abst_enemy>(); } else { wondering_opponents.Clear(); }
-        map = gra.graph_generate(true);
-        GraphicManager.g.init();
+        //GraphicManager.g.init();
+        gra.temp_BFS();
         selected_node = null;
         //이번 게임의 흑막 결정
         //정예 배치
         //적 배치
         //빛기둥 배치
         this.Plr.init();
-        StartCoroutine(departure_select());
+        StartCoroutine(adventure());
     }
     #endregion preparation
 
     #region adventure
     IEnumerator adventure() {
+        yield return StartCoroutine(departure_select());
+        node temp;
         while (true) {
-            yield return null;
+            temp = selected_node;
+            yield return StartCoroutine(move_select()); //move
+            Plr.set_location(selected_node);
         }
     }
 
     IEnumerator node_select(string notice) {
         node temp = this.selected_node;
         //★노드를 선택하라는 안내 화면
-        //★모든 node_button의 클릭 가능 여부를 꺼놓고, 이 부분에서 선택가능한 버튼들만 활성화
         //★만약 취소 가능한 상황일 경우, 취소할 수 있도록 아래 WaitWhile에 조건 추가
-        Debug.Log("before node selection");
         yield return new WaitWhile(() => temp == this.selected_node);
-        Debug.Log("after node selection");
-        //★활성화된 버튼 사후 처리
     }
 
     IEnumerator departure_select() {
         //★GraphicManager에 버튼을 활성화시키는 함수를 만들고, 색 변경 등으로 가시성 확보
-        map[0, 0].get_node_button().GetComponent<Button>().interactable = true;
-        map[0, 10].get_node_button().GetComponent<Button>().interactable = true;
-        map[10, 0].get_node_button().GetComponent<Button>().interactable = true;
-        map[10, 10].get_node_button().GetComponent<Button>().interactable = true;
+        map[0, 0].be_interactive();
+        map[10, 0].be_interactive();
+        map[0, 10].be_interactive();
+        map[10, 10].be_interactive();
         yield return StartCoroutine(node_select("testing"));
         Plr.set_location(selected_node);
-        ColorBlock temp_colorblock = selected_node.get_node_button().GetComponent<Button>().colors;
-        temp_colorblock.normalColor = new Color(1f, 0f, 0f, 1f);
-        selected_node.get_node_button().GetComponent<Button>().colors = temp_colorblock;
+        map[0, 0].de_interactive();
+        map[10, 0].de_interactive();
+        map[0, 10].de_interactive();
+        map[10, 10].de_interactive();
     }
 
     IEnumerator move_select() {
-        //★플레이어의 노드와 link로 연결된 노드 버튼만 활성화
-        yield return StartCoroutine("node_select");
-        Plr.set_location(selected_node);
+        Plr.get_location().be_interactive();
+        foreach (node n in Plr.get_location().get_link()) {
+            if (n != null) { n.be_interactive(); Debug.Log("Plr near node activated"); } else { Debug.Log("it was null"); }
+        }
+        yield return StartCoroutine(node_select("testing"));
+        Plr.get_location().de_interactive();
+        foreach (node n in Plr.get_location().get_link()) {
+            if (n != null) { n.de_interactive(); } 
+        }
     }
     #endregion adventure
 
     #region combat
-    IEnumerator combat_process()
-    {
+    IEnumerator combat_process() {
         int temp_combat_result = 0;
 
         this.is_Plr_turn = true;
-        while (true)
-        {
-            if (is_Plr_turn)
-            {
-                foreach (abst_enemy e in this.combat_opponents)
-                {
+        while (true) {
+            if (is_Plr_turn) {
+                foreach (abst_enemy e in this.combat_opponents) {
                     e.action_choice();
                 }
-            }
-            else {
-                foreach (abst_enemy e in this.combat_opponents)
-                {
+            } else {
+                foreach (abst_enemy e in this.combat_opponents) {
                     e.act();
                 }
             }
-            while (this.is_Plr_turn | order_list.Count > 0)
-            {
+            while (this.is_Plr_turn | order_list.Count > 0) {
                 Debug.Log("cur Plr hp : " + Convert.ToString(this.Plr.get_cur_hp()));
                 Debug.Log("cur enemy hp : " + Convert.ToString(this.combat_opponents[0].get_cur_hp()));
-                if (order_list.Count > 0) { 
+                if (order_list.Count > 0) {
                     order_list.Dequeue().use();
                     temp_combat_result = this.combat_result();
                 }
@@ -129,16 +128,13 @@ public class GameManager : MonoBehaviour
         foreach (abst_power a in giver.powers) { value = a.on_after_attack(value); }
     }
     public void hp_change(thing receiver, int value) {
-        if (value < 0) { foreach (abst_power a in receiver.powers) { value = a.on_before_hp_down(value); } }
-        else if (value > 0) { foreach (abst_power a in receiver.powers) { value = a.on_before_hp_up(value); } }
+        if (value < 0) { foreach (abst_power a in receiver.powers) { value = a.on_before_hp_down(value); } } else if (value > 0) { foreach (abst_power a in receiver.powers) { value = a.on_before_hp_up(value); } }
         receiver.set_cur_hp(true, value);
-        if (value < 0) { foreach (abst_power a in receiver.powers) { value = a.on_after_hp_down(value); } }
-        else if (value > 0) { foreach (abst_power a in receiver.powers) { value = a.on_after_hp_up(value); } }
+        if (value < 0) { foreach (abst_power a in receiver.powers) { value = a.on_after_hp_down(value); } } else if (value > 0) { foreach (abst_power a in receiver.powers) { value = a.on_after_hp_up(value); } }
     }
     public void haste(thing receiver) {
         //foreach (abst_power a in receiver.powers) { a.on_before_haste(); }
-        if (last_used != null) { this.last_used.set_cur_cooltime(true, -1); }
-        else { Debug.Log("thers's no last_used yet"); }//★
+        if (last_used != null) { this.last_used.set_cur_cooltime(true, -1); } else { Debug.Log("thers's no last_used yet"); }//★
         //foreach (abst_power a in receiver.powers) { a.on_after_haste(); }
     }
     public void turn_end() {
@@ -151,8 +147,7 @@ public class GameManager : MonoBehaviour
     public int ROLL() {
         //★그래픽 효과 및 지연 처리
         int result = this.left_of_range + this.ran.xoshiro_range(5);
-        if (result > 5) { this.left_of_range--; }
-        else { this.left_of_range++; }
+        if (result > 5) { this.left_of_range--; } else { this.left_of_range++; }
         return result;
     }
     private int combat_result() {
@@ -162,13 +157,11 @@ public class GameManager : MonoBehaviour
         //★클리어, 게임오버 여부에 따른 보상 및 게임 정지 등의 처리
         if (this.Plr.get_cur_hp() <= 0) {
             Debug.Log("game over");
-            return 2;   /*gameover*/ 
-        }
-        else if (temp <= 0) {
+            return 2;   /*gameover*/
+        } else if (temp <= 0) {
             Debug.Log("Plr win");
-            return 1; /*Plr win*/ 
-        }
-        else{ return 0;   /*combat not completed yet*/ }
+            return 1; /*Plr win*/
+        } else { return 0;   /*combat not completed yet*/ }
     }
     #endregion variant_process
     #endregion combat
@@ -180,6 +173,8 @@ public class GameManager : MonoBehaviour
     public abst_enemy get_selected_enemy() { return selected_enemy; }
     public Queue<abst_action> get_order_list() { return this.order_list; }
     public node[,] get_map() { return this.map; }
+    public node get_selected_node() { return this.selected_node; }
+    public void set_selected_node(node n) { this.selected_node = n; }
     #endregion get_set
 
     public void testing() { Debug.Log("this is GameManager"); }
@@ -189,17 +184,19 @@ public class GameManager : MonoBehaviour
         DontDestroyOnLoad(this.gameObject);
         ran = new xoshiro(); ran.seed();
         gra = new graph_generator();
+        map = new node[11, 11];
+        GraphicManager.g.initial_init();
         this.Plr = new player();
 
         this.Plr.actions.Add(new temp_action());    //★
         this.Plr.actions.Add(new temp_action());
         this.Plr.actions.Add(new temp_action());
         GraphicManager.g.combat_Plr_action_button_update();
-        this.init();
     }
 
     private void Start()
     {
+        this.init();
         this.combat_opponents.Add(new temp_enemy());
         this.selected_enemy = this.combat_opponents[0];
         StartCoroutine(combat_process());

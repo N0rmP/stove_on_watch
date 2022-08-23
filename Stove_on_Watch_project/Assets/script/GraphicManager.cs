@@ -20,23 +20,21 @@ public class GraphicManager : MonoBehaviour
 
     public temp_json tj;
 
-    public void init()
-    {
-        node[,] temp_map = GameManager.g.get_map();
+    public void initial_init() {    //because node_button is connected with GameManager's map, so GraphicManager's creator should be easy to control when it activates
+        tj = new temp_json();
         node_buttons = new GameObject[11, 11];
-        for (int i = 0; i < 11; i++)
-        {
-            for (int j = 0; j < 11; j++)
-            {
-                try
-                {
-                    node_buttons[i, j] = Instantiate(this.node_prefab, new Vector2(510 + i * 90, 980 - j * 90), Quaternion.identity, canvas.transform);
-                    temp_map[i, j].set_node_button(node_buttons[i, j]);
-                }
-                catch (Exception e) { }
-                //node size=50, edge size=40, doundary size=65
+        node[,] temp_map = GameManager.g.get_map();
+        for (int i = 0; i < 11; i++) {
+            for (int j = 0; j < 11; j++) {
+                node_buttons[i, j] = Instantiate(this.node_prefab, new Vector2(510 + i * 90, 980 - j * 90), Quaternion.identity, canvas.transform);
+                node_buttons[i, j].GetComponent<node>().init(i, j);
+                temp_map[i, j] = node_buttons[i, j].GetComponent<node>();
+                //node size=50, edge size=40, boundary size=65
             }
         }
+    }
+    public void init()
+    {
     }
 
     private void Update()
@@ -72,8 +70,6 @@ public class GraphicManager : MonoBehaviour
     {
         if (g == null) { g = this; } else { Destroy(this.gameObject); }
         DontDestroyOnLoad(this.gameObject);
-
-        tj = new temp_json();
     }
 
     /*private void json_practice()
