@@ -44,4 +44,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 146162173c248fc47bf487096ad081a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  combat_Plr_action_button: []
+  canvas: {fileID: 0}
+  node_prefab: {fileID: 4237738077606192909, guid: 04d6cad39a7d597498834e2ef4272f7a, type: 3}
+  combat_Plr_action_buttons: []
+  turn_end_button: {fileID: 0}

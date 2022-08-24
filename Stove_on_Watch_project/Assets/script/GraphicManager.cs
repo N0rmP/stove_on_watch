@@ -11,9 +11,13 @@ public class GraphicManager : MonoBehaviour
 {
     public static GraphicManager g;
     public GameObject canvas;
+    public GameObject combat_panel;
+    public GameObject adventure_panel;
     public GameObject node_prefab;
+    public GameObject edge_prefab;
 
-    public GameObject[,] node_buttons;
+    private GameObject[,] node_buttons;
+    private GameObject[] edges;
 
     public List<GameObject> combat_Plr_action_buttons;
     public GameObject turn_end_button;
@@ -22,11 +26,19 @@ public class GraphicManager : MonoBehaviour
 
     public void initial_init() {    //because node_button is connected with GameManager's map, so GraphicManager's creator should be easy to control when it activates
         tj = new temp_json();
+
+        edges = new GameObject[143];
+        for (int i = 0; i < 143; i++) {
+            edges[i] = Instantiate(edge_prefab);
+            edges[i].transform.SetParent(adventure_panel.transform, false);
+        }
+
         node_buttons = new GameObject[11, 11];
         node[,] temp_map = GameManager.g.get_map();
         for (int i = 0; i < 11; i++) {
             for (int j = 0; j < 11; j++) {
                 node_buttons[i, j] = Instantiate(this.node_prefab, new Vector2(510 + i * 90, 980 - j * 90), Quaternion.identity, canvas.transform);
+                node_buttons[i, j].transform.SetParent(adventure_panel.transform, false);
                 node_buttons[i, j].GetComponent<node>().init(i, j);
                 temp_map[i, j] = node_buttons[i, j].GetComponent<node>();
                 //node size=50, edge size=40, boundary size=65
@@ -52,6 +64,21 @@ public class GraphicManager : MonoBehaviour
             }
             catch (Exception e) {
                 break;
+            }
+        }
+    }
+
+    public void edge_placement() {
+        node[,] temp_map = GameManager.g.get_map();
+        int edge_count = 0;
+        node[] temp_links;
+        foreach (node n1 in temp_map) {
+            temp_links = n1.get_link();
+            for (int i= 2; i<4; i++) {
+                if (temp_links[i] != null) {
+                    edges[edge_count].GetComponent<edge>().liner(n1.gameObject.GetComponent<RectTransform>().localPosition, temp_links[i].gameObject.GetComponent<RectTransform>().localPosition);
+                    edge_count++;
+                }
             }
         }
     }

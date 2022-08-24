@@ -48,7 +48,7 @@ MonoBehaviour:
   m_MinSize: {x: 300, y: 200}
   m_MaxSize: {x: 24288, y: 16192}
   vertical: 0
-  controlID: 48
+  controlID: 104
 --- !u!114 &3
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -223,7 +223,7 @@ MonoBehaviour:
   m_MinSize: {x: 200, y: 200}
   m_MaxSize: {x: 16192, y: 16192}
   vertical: 1
-  controlID: 49
+  controlID: 105
 --- !u!114 &10
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -248,7 +248,7 @@ MonoBehaviour:
   m_MinSize: {x: 200, y: 100}
   m_MaxSize: {x: 16192, y: 8096}
   vertical: 0
-  controlID: 50
+  controlID: 106
 --- !u!114 &11
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -268,8 +268,8 @@ MonoBehaviour:
     y: 0
     width: 1165
     height: 543
-  m_MinSize: {x: 202, y: 221}
-  m_MaxSize: {x: 4002, y: 4021}
+  m_MinSize: {x: 200, y: 200}
+  m_MaxSize: {x: 4000, y: 4000}
   m_ActualView: {fileID: 16}
   m_Panes:
   - {fileID: 16}
@@ -346,22 +346,22 @@ MonoBehaviour:
     m_SkipHidden: 0
     m_SearchArea: 1
     m_Folders:
-    - Assets/script
+    - Assets/script/Things
     m_Globs: []
     m_OriginalText: 
   m_ViewMode: 1
   m_StartGridSize: 64
   m_LastFolders:
-  - Assets/script
+  - Assets/script/Things
   m_LastFoldersGridSize: -1
   m_LastProjectPath: "C:\\Users\\Choi\\Desktop\\2022 \uC5EC\uB984 \uD504\uB85C\uC81D\uD2B8\\stove_on_watch\\Stove_on_Watch_project"
   m_LockTracker:
     m_IsLocked: 0
   m_FolderTreeState:
     scrollPos: {x: 0, y: 0}
-    m_SelectedIDs: 96780000
-    m_LastClickedID: 30870
-    m_ExpandedIDs: 000000007a7800007c7800007e780000807800009078000096780000ca78000000ca9a3bffffff7f
+    m_SelectedIDs: ca530000
+    m_LastClickedID: 21450
+    m_ExpandedIDs: 000000007c5300007e53000080530000825300008e5300009453000000ca9a3bffffff7f
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -389,7 +389,7 @@ MonoBehaviour:
     scrollPos: {x: 0, y: 0}
     m_SelectedIDs: 
     m_LastClickedID: 0
-    m_ExpandedIDs: 000000007a7800007c7800007e78000080780000
+    m_ExpandedIDs: 000000007c5300007e5300008053000082530000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -519,7 +519,7 @@ MonoBehaviour:
       scrollPos: {x: 0, y: 0}
       m_SelectedIDs: 
       m_LastClickedID: 0
-      m_ExpandedIDs: 38d3ffff0e780000
+      m_ExpandedIDs: eaf8ffff50f9ffff2afbfffff4ffffffde520000
       m_RenameOverlay:
         m_UserAcceptedRename: 0
         m_Name: 
@@ -790,9 +790,9 @@ MonoBehaviour:
   m_PlayAudio: 0
   m_AudioPlay: 0
   m_Position:
-    m_Target: {x: 1046.408, y: 686.81244, z: 9.326167}
+    m_Target: {x: 548.29443, y: 426.03625, z: 4.253658}
     speed: 2
-    m_Value: {x: 1046.408, y: 686.81244, z: 9.326167}
+    m_Value: {x: 548.29443, y: 426.03625, z: 4.253658}
   m_RenderMode: 0
   m_CameraMode:
     drawMode: 0
@@ -843,9 +843,9 @@ MonoBehaviour:
     speed: 2
     m_Value: {x: 0, y: 0, z: 0, w: 1}
   m_Size:
-    m_Target: 495.14716
+    m_Target: 676.08746
     speed: 2
-    m_Value: 495.14716
+    m_Value: 676.08746
   m_Ortho:
     m_Target: 1
     speed: 2

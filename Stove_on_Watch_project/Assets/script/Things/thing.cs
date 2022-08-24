@@ -17,6 +17,11 @@ public class thing
         if (this.powers == null) { this.powers = new List<abst_power>(); } else { this.powers.Clear(); }
     }
 
+    public void move_to(node n) {
+        this.get_location().hand_thing(this, n);
+        this.set_location(n);
+    }
+
     #region get_set
     public int get_max_hp() { return this.max_hp; }
     public void set_max_hp(int i) { this.max_hp = i; }

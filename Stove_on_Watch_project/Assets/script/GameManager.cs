@@ -37,6 +37,7 @@ public class GameManager : MonoBehaviour {
         if (wondering_opponents == null) { wondering_opponents = new List<abst_enemy>(); } else { wondering_opponents.Clear(); }
         //GraphicManager.g.init();
         gra.temp_BFS();
+        GraphicManager.g.edge_placement();
         selected_node = null;
         //이번 게임의 흑막 결정
         //정예 배치
@@ -54,7 +55,7 @@ public class GameManager : MonoBehaviour {
         while (true) {
             temp = selected_node;
             yield return StartCoroutine(move_select()); //move
-            Plr.set_location(selected_node);
+            Plr.move_to(selected_node);
         }
     }
 

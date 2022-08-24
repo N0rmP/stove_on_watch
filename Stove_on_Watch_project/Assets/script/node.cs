@@ -8,12 +8,14 @@ public class node : MonoBehaviour
     private int[] coor = new int[2];
     private node[] link = new node[4];  //0 up, 1 right, 2 down, 3 left
     private bool visited;
+    private List<thing> things_here;
 
     public void init(int x, int y) {
         this.coor[0] = x;
         this.coor[1] = y;
         for (int i = 0; i < 4; i++) { this.link[i] = null; }
         this.visited = false;
+        this.things_here.Clear();
     }
 
     public void connect(node n, int dir) {
@@ -23,7 +25,7 @@ public class node : MonoBehaviour
     }
 
     public void click() {
-        Debug.Log($" (x, y) =  ({this.coor[0]}, {this.coor[1]}) clicked");
+        //Debug.Log($" (x, y) =  ({this.coor[0]}, {this.coor[1]}) clicked");
         GameManager.g.set_selected_node(this.GetComponent<node>());
     }
 
@@ -41,6 +43,11 @@ public class node : MonoBehaviour
         temp.interactable = false;
     }
 
+    public void hand_thing(thing t, node n) {
+        n.get_things_here().Add(this.things_here.Find( a=>a==t ));
+        this.things_here.Remove(t);
+    }
+
     #region get_set
     public int[] get_coor() { return this.coor; }
     public void set_coor(int[] i) { this.coor = i; }
@@ -48,7 +55,15 @@ public class node : MonoBehaviour
     public void set_link(int index, node n) { this.link[index] = n; }
     public bool get_visited() { return this.visited; }
     public void set_visited(bool b) { this.visited = b; }
+    public List<thing> get_things_here() { return things_here; }
     #endregion get_set
 
+    public void Awake() {
+        things_here = new List<thing>();
+    }
+    public void FixedUpdate() {
+        //★things_here에 Plr 존재 시 색 변경
+        //★things_here에 종류불문 enemy 존재 시 색 변경
+    }
     public void existence_test() { Debug.Log("cordinate of this is : " + this.coor[0] + ", " + this.coor[1]); }
 }
