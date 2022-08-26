@@ -15,6 +15,7 @@ public class GraphicManager : MonoBehaviour
     public GameObject adventure_panel;
     public GameObject node_prefab;
     public GameObject edge_prefab;
+    public List<GameObject> event_UI;
 
     private GameObject[,] node_buttons;
     private GameObject[] edges;
@@ -24,7 +25,7 @@ public class GraphicManager : MonoBehaviour
 
     public temp_json tj;
 
-    public void initial_init() {    //because node_button is connected with GameManager's map, so GraphicManager's creator should be easy to control when it activates
+    public void initial_init() {    //because node_button should be created after GameManager's map / before graph generating, GraphicManager's creator should be easy to control its timing
         tj = new temp_json();
 
         edges = new GameObject[143];
@@ -83,6 +84,22 @@ public class GraphicManager : MonoBehaviour
         }
     }
 
+    public void event_placement(string name) {
+        tj.init();
+        tj = JsonConvert.DeserializeObject<temp_json>((Resources.Load(name, typeof(TextAsset)) as TextAsset).text);
+        event_UI[1].GetComponent<TextMeshProUGUI>().text = tj.s1;
+        event_UI[2].GetComponent<TextMeshProUGUI>().text = tj.s2;
+        for (int i = 0; i < 3; i++) {
+            if (i < tj.s.Length) { event_UI[i + 3].transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = tj.s[i]; event_UI[i + 3].SetActive(true); } else { event_UI[i + 3].SetActive(false); }
+        }
+    }
+
+    public temp_json get_json(string name) {    //it's used only when outer class uses json directly, GraphicManager doesnt use this
+        tj.init();
+        tj = JsonConvert.DeserializeObject<temp_json>((Resources.Load(name, typeof(TextAsset)) as TextAsset).text);
+        return tj;
+    }
+
     public void temp_combat_remove() {
         foreach (GameObject g in combat_Plr_action_buttons) { g.GetComponent<RectTransform>().anchoredPosition = new Vector2 (g.GetComponent<RectTransform>().anchoredPosition.x, -640) ; }
         turn_end_button.GetComponent<RectTransform>().anchoredPosition = new Vector2 (1060, turn_end_button.GetComponent<RectTransform>().anchoredPosition.y);
@@ -91,6 +108,14 @@ public class GraphicManager : MonoBehaviour
     {
         foreach (GameObject g in combat_Plr_action_buttons) { g.GetComponent<RectTransform>().anchoredPosition = new Vector2(g.GetComponent<RectTransform>().anchoredPosition.x, -360); }
         turn_end_button.GetComponent<RectTransform>().anchoredPosition = new Vector2 (793, turn_end_button.GetComponent<RectTransform>().anchoredPosition.y);
+    }
+
+    public void temp_event_remove() {
+        event_UI[0].GetComponent<RectTransform>().localPosition = event_UI[0].GetComponent<RectTransform>().localPosition + new Vector3(800f, 0f, 0f);
+    }
+
+    public void temp_event_recover() {
+        event_UI[0].GetComponent<RectTransform>().localPosition = event_UI[0].GetComponent<RectTransform>().localPosition + new Vector3(-800f, 0f, 0f);
     }
 
     void Awake()

@@ -18,3 +18,6 @@ https://hijuworld.tistory.com/32
 
 https://centbin-dev.tistory.com/entry/C-%EB%9E%8C%EB%8B%A4%EC%8B%9D%EA%B3%BC-LINQ-%EA%B8%B0%EC%B4%88
 람다식 총정리
+
+https://codechacha.com/ko/java-private-constructor/
+private 사용 사례

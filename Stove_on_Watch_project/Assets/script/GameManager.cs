@@ -200,6 +200,6 @@ public class GameManager : MonoBehaviour {
         this.init();
         this.combat_opponents.Add(new temp_enemy());
         this.selected_enemy = this.combat_opponents[0];
-        StartCoroutine(combat_process());
+        //StartCoroutine(combat_process());
     }
 }
