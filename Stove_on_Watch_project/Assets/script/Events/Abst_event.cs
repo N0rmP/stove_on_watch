@@ -17,7 +17,7 @@ public abstract class Abst_event
     public IEnumerator happen() {
         int temp = choice;
         GraphicManager.g.temp_event_recover();
-        GraphicManager.g.event_placement(this.event_name);
+        GraphicManager.g.event_output(this.event_name);
         yield return new WaitWhile(() => choice==temp);
         switch (choice) {
             case (0):

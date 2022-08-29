@@ -84,7 +84,7 @@ public class GraphicManager : MonoBehaviour
         }
     }
 
-    public void event_placement(string name) {
+    public void event_output(string name) {
         tj.init();
         tj = JsonConvert.DeserializeObject<temp_json>((Resources.Load(name, typeof(TextAsset)) as TextAsset).text);
         event_UI[1].GetComponent<TextMeshProUGUI>().text = tj.s1;
