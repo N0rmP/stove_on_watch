@@ -5,6 +5,8 @@ using UnityEngine.UI;
 using System;
 using System.Threading;
 
+using TMPro;
+
 public class GameManager : MonoBehaviour {
     private int left_of_range;
 
@@ -26,6 +28,11 @@ public class GameManager : MonoBehaviour {
     private List<abst_enemy> combat_opponents;
     private List<abst_enemy> wondering_opponents;
     private abst_enemy selected_enemy;
+
+    public abst_event cur_event { get; set; }
+
+    public TextMeshProUGUI p;
+    public TextMeshProUGUI e;
 
     #region preparation
     public void init()  //GameManager's init() means 'entire reset of the total game'
@@ -56,6 +63,16 @@ public class GameManager : MonoBehaviour {
             temp = selected_node;
             yield return StartCoroutine(move_select()); //move
             Plr.move_to(selected_node);
+
+            if (selected_node.is_enemy_here()) {
+                combat_opponents = selected_node.get_enemies_here();
+                selected_enemy = combat_opponents[0];
+                StartCoroutine(combat_process());
+            }
+            if (selected_node.event_here != null) {
+                cur_event = selected_node.event_here;
+                StartCoroutine(cur_event.happen());
+            }
         }
     }
 
@@ -97,8 +114,10 @@ public class GameManager : MonoBehaviour {
     IEnumerator combat_process() {
         int temp_combat_result = 0;
 
+        GraphicManager.g.temp_combat_recover();
         this.is_Plr_turn = true;
         while (true) {
+            Debug.Log(is_Plr_turn);
             if (is_Plr_turn) {
                 foreach (abst_enemy e in this.combat_opponents) {
                     e.action_choice();
@@ -108,9 +127,12 @@ public class GameManager : MonoBehaviour {
                     e.act();
                 }
             }
-            while (this.is_Plr_turn | order_list.Count > 0) {
-                Debug.Log("cur Plr hp : " + Convert.ToString(this.Plr.get_cur_hp()));
-                Debug.Log("cur enemy hp : " + Convert.ToString(this.combat_opponents[0].get_cur_hp()));
+            while (is_Plr_turn | order_list.Count > 0) {
+                Debug.Log("bool : " + (is_Plr_turn | order_list.Count > 0));
+                Debug.Log("is Plr turn : " + is_Plr_turn);
+                Debug.Log("count : " + (order_list.Count > 0));
+                p.text = Plr.get_cur_hp().ToString();
+                e.text = selected_enemy.get_cur_hp().ToString();
                 if (order_list.Count > 0) {
                     order_list.Dequeue().use();
                     temp_combat_result = this.combat_result();
@@ -119,6 +141,7 @@ public class GameManager : MonoBehaviour {
             }
             if (temp_combat_result != 0) { break; }
         }
+        GraphicManager.g.temp_combat_remove();
     }
 
     #region variant_process
@@ -141,7 +164,6 @@ public class GameManager : MonoBehaviour {
     public void turn_end() {
         //★turn_end_button과 abst_enemy의 ender를 GameManager로 옮기고 각 클래스에서는 메서드 하나만 호출하는 방식도 고민해볼 것
         //★if is_Plr_turn : on_Plr_turn_end, else on_enemy_turn_end
-        Debug.Log("we are in turn ending");
         is_Plr_turn = !is_Plr_turn;
         //★if is_Plr_turn : on_enemy_turn_start, else on_Plr_turn_start
     }
@@ -198,9 +220,19 @@ public class GameManager : MonoBehaviour {
     private void Start()
     {
         this.init();
-        this.combat_opponents.Add(new temp_enemy());
-        this.selected_enemy = this.combat_opponents[0];
-        GraphicManager.g.event_output("event_test");
-        //StartCoroutine(combat_process());
+        new temp_enemy().move_to(map[1,1]);
+        map[2, 2].event_here = new temp_event();
+        //StartCoroutine(asdf());
+    }
+
+    public IEnumerator asdf() {
+        while(true){
+            GraphicManager.g.temp_event_recover();
+            Debug.Log("recover");
+            yield return new WaitForSeconds(1f);
+            GraphicManager.g.temp_event_remove();
+            Debug.Log("remove");
+            yield return new WaitForSeconds(1f);
+        }
     }
 }

@@ -25,8 +25,13 @@ public class GraphicManager : MonoBehaviour
 
     public temp_json tj;
 
+    private enum screen_type { screen_null, map, combat, event_screen, ability, shelter }
+    private screen_type main_screen;
+
+
     public void initial_init() {    //because node_button should be created after GameManager's map / before graph generating, GraphicManager's creator should be easy to control its timing
         tj = new temp_json();
+        main_screen = screen_type.screen_null;
 
         edges = new GameObject[143];
         for (int i = 0; i < 143; i++) {
@@ -50,21 +55,11 @@ public class GraphicManager : MonoBehaviour
     {
     }
 
-    private void Update()
-    {
-        tj = JsonConvert.DeserializeObject<temp_json>((Resources.Load("asset_test", typeof(TextAsset)) as TextAsset).text);
-        this.combat_Plr_action_buttons[0].transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = tj.s1;   //★
-        //Convert.ToString(this.combat_Plr_action_buttons[0].GetComponent<Plr_action_button>().get_target().get_cur_cooltime())
-    }
-
     public void combat_Plr_action_button_update() {
-        for (int i=0;i<6;i++) {
-            try
-            {
-                this.combat_Plr_action_buttons[i].GetComponent<Plr_action_button>().set_target(GameManager.g.get_Plr().actions[i]);
-            }
-            catch (Exception e) {
-                break;
+        List<abst_Plr_action> temp = GameManager.g.get_Plr().actions;
+        for (int i=0; i<temp.Count; i++) {
+            if (temp[i] != null) {
+                this.combat_Plr_action_buttons[i].GetComponent<Plr_action_button>().set_target(temp[i]);
             }
         }
     }
@@ -92,6 +87,7 @@ public class GraphicManager : MonoBehaviour
         for (int i = 0; i < 3; i++) {
             if (i < tj.s.Length) { event_UI[i + 3].transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = tj.s[i]; event_UI[i + 3].SetActive(true); } else { event_UI[i + 3].SetActive(false); }
         }
+        temp_event_recover();
     }
 
     public temp_json get_json(string name) {    //it's used only when outer class uses json directly, GraphicManager doesnt use this
@@ -101,21 +97,27 @@ public class GraphicManager : MonoBehaviour
     }
 
     public void temp_combat_remove() {
+        combat_panel.GetComponent<RectTransform>().localPosition = combat_panel.GetComponent<RectTransform>().localPosition + new Vector3(0f, -1050f, 0f);
+        /*
         foreach (GameObject g in combat_Plr_action_buttons) { g.GetComponent<RectTransform>().anchoredPosition = new Vector2 (g.GetComponent<RectTransform>().anchoredPosition.x, -640) ; }
         turn_end_button.GetComponent<RectTransform>().anchoredPosition = new Vector2 (1060, turn_end_button.GetComponent<RectTransform>().anchoredPosition.y);
+        */
     }
-    public void temp_combat_recover()
-    {
+    public void temp_combat_recover() {
+        combat_panel.GetComponent<RectTransform>().localPosition = combat_panel.GetComponent<RectTransform>().localPosition + new Vector3(0f, 1050f, 0f);
+        /*
         foreach (GameObject g in combat_Plr_action_buttons) { g.GetComponent<RectTransform>().anchoredPosition = new Vector2(g.GetComponent<RectTransform>().anchoredPosition.x, -360); }
         turn_end_button.GetComponent<RectTransform>().anchoredPosition = new Vector2 (793, turn_end_button.GetComponent<RectTransform>().anchoredPosition.y);
+        */
     }
 
     public void temp_event_remove() {
-        event_UI[0].GetComponent<RectTransform>().localPosition = event_UI[0].GetComponent<RectTransform>().localPosition + new Vector3(800f, 0f, 0f);
+            event_UI[0].GetComponent<RectTransform>().localPosition = event_UI[0].GetComponent<RectTransform>().localPosition + new Vector3(800f, 0f, 0f);
+            //★main_screen 표시 방법 구상
     }
 
     public void temp_event_recover() {
-        event_UI[0].GetComponent<RectTransform>().localPosition = event_UI[0].GetComponent<RectTransform>().localPosition + new Vector3(-800f, 0f, 0f);
+            event_UI[0].GetComponent<RectTransform>().localPosition = event_UI[0].GetComponent<RectTransform>().localPosition + new Vector3(-800f, 0f, 0f);
     }
 
     void Awake()

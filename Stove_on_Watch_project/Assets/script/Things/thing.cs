@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 public class thing
 {
@@ -18,7 +19,11 @@ public class thing
     }
 
     public void move_to(node n) {
-        this.get_location().hand_thing(this, n);
+        if (this.get_location() != null) {
+            this.get_location().hand_thing(this, n);
+        } else {
+            n.get_things_here().Add(this);
+        }
         this.set_location(n);
     }
 
