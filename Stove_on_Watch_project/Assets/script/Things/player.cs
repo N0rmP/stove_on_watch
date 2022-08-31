@@ -8,8 +8,11 @@ public class player : thing
     private int max_hope;
     private int cur_hope;
 
-    private List<abst_Plr_action> inventory;
-    public List<abst_Plr_action> actions;   //¡Ú
+    //inventory divides into 2+1, incomplete_action / tool / actions(complete and available ones)
+    private List<abst_Plr_action> action_inventory;
+    public List<abst_tool> tool_inventory;
+    public List<abst_Plr_action> actions;
+    public int shards;  //shard is described only by int
 
     public player() {
         this.init();
@@ -18,7 +21,8 @@ public class player : thing
     public void init()
     {
         this.max_hp = initial_max_hp;
-        if (inventory == null) { inventory = new List<abst_Plr_action>(); } else { inventory.Clear(); }
+        shards = 0;
+        //¡Úif (inventory == null) { inventory = new List<abst_Plr_action>(); } else { inventory.Clear(); }
         if (actions == null) { actions = new List<abst_Plr_action>(); } else { actions.Clear(); }
         base.init();
     }

@@ -8,6 +8,8 @@ public class Plr_action_button : abst_Plr_action_image
 {
     public int button_order;
     public void in_combat_use() {
-        GameManager.g.get_order_list().Enqueue(this.get_target());
+        if (GameManager.g.get_is_Plr_turn()) {
+            GameManager.g.get_order_list().Enqueue(this.get_target());
+        }
     }
 }

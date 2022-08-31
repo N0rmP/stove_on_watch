@@ -113,6 +113,7 @@ public class GameManager : MonoBehaviour {
     #region combat
     IEnumerator combat_process() {
         int temp_combat_result = 0;
+        bool whose_turn_when_turen_started;
 
         GraphicManager.g.temp_combat_recover();
         this.is_Plr_turn = true;
@@ -127,21 +128,23 @@ public class GameManager : MonoBehaviour {
                     e.act();
                 }
             }
-            while (is_Plr_turn | order_list.Count > 0) {
-                Debug.Log("bool : " + (is_Plr_turn | order_list.Count > 0));
-                Debug.Log("is Plr turn : " + is_Plr_turn);
-                Debug.Log("count : " + (order_list.Count > 0));
+            whose_turn_when_turen_started = is_Plr_turn;
+            while (is_Plr_turn == whose_turn_when_turen_started | order_list.Count > 0) {
                 p.text = Plr.get_cur_hp().ToString();
                 e.text = selected_enemy.get_cur_hp().ToString();
+                if (temp_combat_result != 0) { 
+                    //★전투 승리에 따른 보상, 전투 패배에 따른 게임 오버
+                    GraphicManager.g.temp_combat_remove();
+                    yield break; 
+                }
                 if (order_list.Count > 0) {
                     order_list.Dequeue().use();
                     temp_combat_result = this.combat_result();
                 }
                 yield return new WaitForSeconds(0.05f);
             }
-            if (temp_combat_result != 0) { break; }
         }
-        GraphicManager.g.temp_combat_remove();
+        
     }
 
     #region variant_process
