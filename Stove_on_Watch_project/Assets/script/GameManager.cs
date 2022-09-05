@@ -50,7 +50,7 @@ public class GameManager : MonoBehaviour {
         //정예 배치
         //적 배치
         //빛기둥 배치
-        this.Plr.init();
+        Plr.init();
         StartCoroutine(adventure());
     }
     #endregion preparation
@@ -100,7 +100,7 @@ public class GameManager : MonoBehaviour {
     IEnumerator move_select() {
         Plr.get_location().be_interactive();
         foreach (node n in Plr.get_location().get_link()) {
-            if (n != null) { n.be_interactive(); Debug.Log("Plr near node activated"); } else { Debug.Log("it was null"); }
+            if (n != null) { n.be_interactive(); }
         }
         yield return StartCoroutine(node_select("testing"));
         Plr.get_location().de_interactive();
@@ -112,13 +112,12 @@ public class GameManager : MonoBehaviour {
 
     #region combat
     IEnumerator combat_process() {
-        int temp_combat_result = 0;
+        int temp_combat_result = 0; //0=combat not completed , 1=Plr win / 2=Plr lose / 3=run away
         bool whose_turn_when_turen_started;
 
         GraphicManager.g.temp_combat_recover();
         this.is_Plr_turn = true;
         while (true) {
-            Debug.Log(is_Plr_turn);
             if (is_Plr_turn) {
                 foreach (abst_enemy e in this.combat_opponents) {
                     e.action_choice();
@@ -215,8 +214,8 @@ public class GameManager : MonoBehaviour {
         this.Plr = new player();
 
         this.Plr.actions.Add(new temp_action());    //★
-        this.Plr.actions.Add(new temp_action());
-        this.Plr.actions.Add(new temp_action());
+        this.Plr.actions.Add(new temp_action2());
+        this.Plr.actions.Add(new temp_action3());
         GraphicManager.g.combat_Plr_action_button_update();
     }
 
@@ -225,17 +224,6 @@ public class GameManager : MonoBehaviour {
         this.init();
         new temp_enemy().move_to(map[1,1]);
         map[2, 2].event_here = new temp_event();
-        //StartCoroutine(asdf());
-    }
-
-    public IEnumerator asdf() {
-        while(true){
-            GraphicManager.g.temp_event_recover();
-            Debug.Log("recover");
-            yield return new WaitForSeconds(1f);
-            GraphicManager.g.temp_event_remove();
-            Debug.Log("remove");
-            yield return new WaitForSeconds(1f);
-        }
+        Debug.Log(LibraryManager.li.return_action().action_name_);
     }
 }

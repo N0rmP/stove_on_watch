@@ -11,17 +11,18 @@ public class GraphicManager : MonoBehaviour
 {
     public static GraphicManager g;
     public GameObject canvas;
-    public GameObject combat_panel;
     public GameObject adventure_panel;
     public GameObject node_prefab;
     public GameObject edge_prefab;
-    public List<GameObject> event_UI;
-
     private GameObject[,] node_buttons;
     private GameObject[] edges;
 
-    public List<GameObject> combat_Plr_action_buttons;
+    public List<GameObject> event_UI;
+
+    public GameObject combat_panel;
+    public GameObject combat_button_perfab;
     public GameObject turn_end_button;
+    private List<GameObject> combat_buttons;
 
     public temp_json tj;
 
@@ -43,23 +44,37 @@ public class GraphicManager : MonoBehaviour
         node[,] temp_map = GameManager.g.get_map();
         for (int i = 0; i < 11; i++) {
             for (int j = 0; j < 11; j++) {
-                node_buttons[i, j] = Instantiate(this.node_prefab, new Vector2(510 + i * 90, 980 - j * 90), Quaternion.identity, canvas.transform);
+                node_buttons[i, j] = Instantiate(node_prefab, new Vector2(510 + i * 90, 980 - j * 90), Quaternion.identity, canvas.transform);
                 node_buttons[i, j].transform.SetParent(adventure_panel.transform, false);
                 node_buttons[i, j].GetComponent<node>().init(i, j);
                 temp_map[i, j] = node_buttons[i, j].GetComponent<node>();
                 //node size=50, edge size=40, boundary size=65
             }
         }
+
+        combat_buttons = new List<GameObject>();
+        for (int i = 0; i < 6; i++) {
+            combat_buttons.Add(Instantiate(combat_button_perfab, new Vector2(130 + i * 280, 160), Quaternion.identity, canvas.transform));
+            combat_buttons[i].transform.SetParent(combat_panel.transform, false);
+            combat_buttons[i].GetComponent<Plr_action_button>().combat_button_order_ = i;
+        }
     }
-    public void init()
-    {
-    }
+
+    public void init() { }
 
     public void combat_Plr_action_button_update() {
         List<abst_Plr_action> temp = GameManager.g.get_Plr().actions;
-        for (int i=0; i<temp.Count; i++) {
-            if (temp[i] != null) {
-                this.combat_Plr_action_buttons[i].GetComponent<Plr_action_button>().set_target(temp[i]);
+
+        for (int i=0; i<6; i++) {
+            if (temp.Count > i) {
+                combat_buttons[i].SetActive(true);
+                combat_buttons[i].GetComponent<Plr_action_button>().set_target(temp[i]);
+                tj = JsonConvert.DeserializeObject<temp_json>((Resources.Load(temp[i].action_name_, typeof(TextAsset)) as TextAsset).text);
+                combat_buttons[i].transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = tj.s1;
+                combat_buttons[i].transform.GetChild(2).GetComponent<TextMeshProUGUI>().text = tj.s2;
+                combat_buttons[i].transform.GetChild(3).GetChild(0).GetComponent<TextMeshProUGUI>().text = tj.i1.ToString();
+            } else {
+                combat_buttons[i].SetActive(false);
             }
         }
     }
@@ -99,14 +114,14 @@ public class GraphicManager : MonoBehaviour
     public void temp_combat_remove() {
         combat_panel.GetComponent<RectTransform>().localPosition = combat_panel.GetComponent<RectTransform>().localPosition + new Vector3(0f, -1050f, 0f);
         /*
-        foreach (GameObject g in combat_Plr_action_buttons) { g.GetComponent<RectTransform>().anchoredPosition = new Vector2 (g.GetComponent<RectTransform>().anchoredPosition.x, -640) ; }
+        foreach (GameObject g in combat_buttons) { g.GetComponent<RectTransform>().anchoredPosition = new Vector2 (g.GetComponent<RectTransform>().anchoredPosition.x, -640) ; }
         turn_end_button.GetComponent<RectTransform>().anchoredPosition = new Vector2 (1060, turn_end_button.GetComponent<RectTransform>().anchoredPosition.y);
         */
     }
     public void temp_combat_recover() {
         combat_panel.GetComponent<RectTransform>().localPosition = combat_panel.GetComponent<RectTransform>().localPosition + new Vector3(0f, 1050f, 0f);
         /*
-        foreach (GameObject g in combat_Plr_action_buttons) { g.GetComponent<RectTransform>().anchoredPosition = new Vector2(g.GetComponent<RectTransform>().anchoredPosition.x, -360); }
+        foreach (GameObject g in combat_buttons) { g.GetComponent<RectTransform>().anchoredPosition = new Vector2(g.GetComponent<RectTransform>().anchoredPosition.x, -360); }
         turn_end_button.GetComponent<RectTransform>().anchoredPosition = new Vector2 (793, turn_end_button.GetComponent<RectTransform>().anchoredPosition.y);
         */
     }
