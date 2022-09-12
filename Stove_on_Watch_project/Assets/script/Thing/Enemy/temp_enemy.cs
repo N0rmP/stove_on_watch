@@ -9,6 +9,6 @@ public class temp_enemy : abst_enemy
         enemy_tier = enemy_tiers.normal;
         initial_action_list = new List<abst_enemy_action> { new temp_enemy_action(this), new temp_enemy_action(this), new temp_enemy_action(this) };
         powers.Add(new temp_enemy_power());
-        init();
+        list_reset();
     }
 }

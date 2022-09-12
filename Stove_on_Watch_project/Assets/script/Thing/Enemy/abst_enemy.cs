@@ -29,7 +29,7 @@ public abstract class abst_enemy : thing
             case 2:
                 max_hp = 300; break;
         }
-        if (cur_action_list == null) { cur_action_list = initial_action_list.ToList<abst_enemy_action>(); } else { cur_action_list.Clear(); }
+        if (cur_action_list == null) { cur_action_list = new List<abst_enemy_action>(); } else { cur_action_list.Clear(); }
         if (discarded_action_list == null) { discarded_action_list = new List<abst_enemy_action>(); } else { discarded_action_list.Clear(); }
         if (next_actions == null) { next_actions = new Queue<abst_enemy_action>(); } else { next_actions.Clear(); }
     }
@@ -62,9 +62,13 @@ public abstract class abst_enemy : thing
     }
 
     protected void list_reset() {
-        //★행동이 일정한 순서로 배열되게 만들 것
-        cur_action_list = discarded_action_list.ToList();
-        discarded_action_list.Clear();
+        if (discarded_action_list.Count > 0) {
+            //★행동이 일정한 순서로 배열되게 만들 것
+            cur_action_list = discarded_action_list.ToList();
+            discarded_action_list.Clear();
+        } else {
+            cur_action_list = initial_action_list.ToList<abst_enemy_action>();
+        }
     }
     #endregion action_list
 }

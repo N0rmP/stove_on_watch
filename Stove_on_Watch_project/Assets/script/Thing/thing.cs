@@ -3,14 +3,15 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
-public class thing
-{
+public class thing {
     protected int max_hp;
     protected int cur_hp;
     //★플레이어 및 몬스터 스프라이트
 
     public List<abst_power> powers;
     protected node location;
+
+    public thing() { init(); }
 
     public void init()
     {

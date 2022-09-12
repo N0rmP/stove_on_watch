@@ -14,6 +14,8 @@ public class player : thing
     public List<abst_Plr_action> actions;
     public int shards;  //shard is described only by int
 
+    public player() { init(); } //★게임 시작 시 어차피 초기화한다면 이것은 필요없다
+
     protected override void personal_init()
     {
         max_hp = initial_max_hp;

@@ -8,17 +8,17 @@ using System.Threading;
 using TMPro;
 
 public class GameManager : MonoBehaviour {
-    private int left_of_range;
-
     public static GameManager g = null;
+
+    private int left_of_range;
+    bool is_combat; //0=not in combat / 1=during combat / 2=combat end    ★is it possible to develop this with boolean?
+    private bool is_Plr_turn;
 
     public xoshiro ran;
     graph_generator gra;
 
     private node[,] map;
     private node selected_node;
-
-    private bool is_Plr_turn;
 
     //public delegate void order_func(int i);
     public Queue<abst_action> order_list;
@@ -31,6 +31,8 @@ public class GameManager : MonoBehaviour {
 
     public abst_event cur_event { get; set; }
 
+    private List<object> rewards;
+
     public TextMeshProUGUI p;
     public TextMeshProUGUI e;
 
@@ -42,6 +44,7 @@ public class GameManager : MonoBehaviour {
         last_used = null;
         if (combat_opponents == null) { combat_opponents = new List<abst_enemy>(); } else { combat_opponents.Clear(); }
         if (wondering_opponents == null) { wondering_opponents = new List<abst_enemy>(); } else { wondering_opponents.Clear(); }
+        if (rewards == null) { rewards = new List<object>(); } else { rewards.Clear(); }
         //GraphicManager.g.init();
         gra.temp_BFS();
         GraphicManager.g.edge_placement();
@@ -55,23 +58,67 @@ public class GameManager : MonoBehaviour {
     }
     #endregion preparation
 
+    #region general
+    #endregion general
+
+    #region reward
+    //★언젠가 general 속에 집어넣을 것
+    private void reward_shard(int i) {
+        rewards.Add(i);
+    }
+    private void reward_action() {
+        rewards.Add(LibraryManager.li.return_action());
+    }
+    private void reward_action(abst_Plr_action a) {
+        rewards.Add(a);
+        //Plr.actions.Add((abst_Plr_action)rewards[0]); ★use it
+    }
+    private void reward_tool() {
+        rewards.Add(LibraryManager.li.return_tool());
+    }
+    private void reward_tool(abst_tool t) {
+        rewards.Add(LibraryManager.li.return_tool());
+    }
+    #endregion reward
+
     #region adventure
     IEnumerator adventure() {
         yield return StartCoroutine(departure_select());
         node temp;
         while (true) {
-            temp = selected_node;
-            yield return StartCoroutine(move_select()); //move
-            Plr.move_to(selected_node);
+            //★게임 오버 여부 확인
+            if (is_Plr_turn) {
+                //★플레이어 체력 회복
+                if (is_combat) {
+                    foreach (abst_enemy e in this.combat_opponents) {
+                        e.action_choice();
+                    }
+                    StartCoroutine(combat_unit());
+                } else {
+                    temp = selected_node;
+                    yield return StartCoroutine(move_select()); //move
+                    Plr.move_to(selected_node);
 
-            if (selected_node.is_enemy_here()) {
-                combat_opponents = selected_node.get_enemies_here();
-                selected_enemy = combat_opponents[0];
-                StartCoroutine(combat_process());
-            }
-            if (selected_node.event_here != null) {
-                cur_event = selected_node.event_here;
-                StartCoroutine(cur_event.happen());
+                    if (selected_node.is_enemy_here()) {
+                        //this section only initiates settings of combat, real combat is preformed in 'if' body above
+                        this.is_Plr_turn = true;
+                        combat_opponents = selected_node.get_enemies_here();
+                        selected_enemy = combat_opponents[0];
+                    }
+                    if (selected_node.event_here != null) {
+                        cur_event = selected_node.event_here;
+                        StartCoroutine(cur_event.happen());
+                    }
+                }
+            } else {
+                if (is_combat) {
+                    foreach (abst_enemy e in this.combat_opponents) {
+                        e.act();
+                    }
+                    StartCoroutine(combat_unit());
+                } else {
+                    //★wadering opponents에 있는 abst_enemy들을 이동시키기
+                }
             }
         }
     }
@@ -111,42 +158,23 @@ public class GameManager : MonoBehaviour {
     #endregion adventure
 
     #region combat
-    IEnumerator combat_process() {
-        int temp_combat_result = 0; //0=combat not completed , 1=Plr win / 2=Plr lose / 3=run away
-        bool whose_turn_when_turen_started;
+    IEnumerator combat_unit() {
+        GraphicManager.g.temp_combat_recover(); //★
+        bool whose_turn_when_turen_started = is_Plr_turn;
 
-        GraphicManager.g.temp_combat_recover();
-        this.is_Plr_turn = true;
-        while (true) {
-            if (is_Plr_turn) {
-                foreach (abst_enemy e in this.combat_opponents) {
-                    e.action_choice();
-                }
-            } else {
-                foreach (abst_enemy e in this.combat_opponents) {
-                    e.act();
-                }
-            }
-            whose_turn_when_turen_started = is_Plr_turn;
-            while (is_Plr_turn == whose_turn_when_turen_started | order_list.Count > 0) {
-                p.text = Plr.get_cur_hp().ToString();
-                e.text = selected_enemy.get_cur_hp().ToString();
-                if (temp_combat_result != 0) { 
-                    //★전투 승리에 따른 보상, 전투 패배에 따른 게임 오버
-                    GraphicManager.g.temp_combat_remove();
-                    yield break; 
-                }
+        while (is_Plr_turn == whose_turn_when_turen_started | order_list.Count > 0) {
+                //★게임 오버 판정
+                //★if !is_combat : yield break
+                p.text = Plr.get_cur_hp().ToString();               //★graphicmanager에게 옮긴 뒤 삭제
+                e.text = selected_enemy.get_cur_hp().ToString();    //★graphicmanager에게 옮긴 뒤 삭제
                 if (order_list.Count > 0) {
                     order_list.Dequeue().use();
-                    temp_combat_result = this.combat_result();
                 }
                 yield return new WaitForSeconds(0.05f);
             }
-        }
-        
     }
 
-    #region variant_process
+    #region combat_process
     public void attack(thing giver, thing receiver, int value) {
         foreach (abst_power a in giver.powers) { value = a.on_before_attack(receiver, value); }
         //★방어도 처리
@@ -176,6 +204,7 @@ public class GameManager : MonoBehaviour {
         return result;
     }
     private int combat_result() {
+        //★is_combat 조정으로 전투 루프 탈출, 보상 제공, 게임 클리어/오버 시 모든 Coroutine 정지 후 처리
         int temp = 0;
         foreach (abst_enemy a in this.combat_opponents) { temp += a.get_cur_hp(); }
 
@@ -188,7 +217,7 @@ public class GameManager : MonoBehaviour {
             return 1; /*Plr win*/
         } else { return 0;   /*combat not completed yet*/ }
     }
-    #endregion variant_process
+    #endregion combat_process
     #endregion combat
 
     #region get_set
@@ -224,6 +253,6 @@ public class GameManager : MonoBehaviour {
         this.init();
         new temp_enemy().move_to(map[1,1]);
         map[2, 2].event_here = new temp_event();
-        Debug.Log(LibraryManager.li.return_action().action_name_);
+        //Debug.Log(LibraryManager.li.return_action().action_name_);
     }
 }
