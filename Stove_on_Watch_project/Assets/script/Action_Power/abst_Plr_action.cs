@@ -8,7 +8,7 @@ public abstract class abst_Plr_action : abst_action
     protected int initial_max_cost;
     protected int max_cost;
     protected int cur_cooltime;
-    private int temp_cost;  //save the amount of cost usage between button click and actual use()
+    private int temp_cost;  //save the amount of cost usage between button click and actual use(), ★
     protected bool is_savable;  //if max cost is described by ≤ then it's true, ★아마 카드 정보 표시할 때만 사용될 듯
     public enum concepts { simple, complex, haste, calm, plan }
     protected HashSet<concepts> tags;

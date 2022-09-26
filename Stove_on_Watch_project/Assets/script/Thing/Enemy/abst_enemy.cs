@@ -14,10 +14,11 @@ public abstract class abst_enemy : thing
 
     private List<abst_power> passives;
 
-    protected static abst_action ender = new turn_end();
+    //protected static abst_action ender = new turn_end();
 
-    public enum enemy_tiers { normal, elite, boss }
+    public enum enemy_tiers { normal, elite, root }
     protected enemy_tiers enemy_tier;
+    public enemy_tiers enemy_tier_ { get; }
 
     protected override void personal_init() {
         switch ((int)enemy_tier)
@@ -44,7 +45,18 @@ public abstract class abst_enemy : thing
             GameManager.g.order_list.Enqueue(temp_enemy_action);
             discarded_action_list.Add(temp_enemy_action);
         }
-        GameManager.g.order_list.Enqueue(abst_enemy.ender);
+        //GameManager.g.order_list.Enqueue(abst_enemy.ender);
+    }
+
+    public void give_reward() {
+        RewardManager temp_r = GameManager.g.rew;
+        switch ((int)enemy_tier) {
+            case 0:
+                for (int i = 0; i < 3; i++) { temp_r.reward_add_action(); }
+                temp_r.reward_add(GameManager.g.ran.xoshiro_range(90, 100) );   //★2단계 맵이라면 보상 증가
+                break;
+            //★정예 보상 준비, 근원 보상은 게임 클리어이므로 GameManager 클래스에서 준비할 것
+        }
     }
 
     #region action_list
