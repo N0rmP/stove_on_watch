@@ -81,7 +81,6 @@ public class LibraryManager : MonoBehaviour
         code = GameManager.g.ran.xoshiro_range(action_list.Count);
         string temp = action_list[code];
         action_list.RemoveAt(code);
-        Debug.Log(temp.Substring(0, temp.Length - 3) + " / " + Type.GetType(temp.Substring(0, temp.Length - 3)));
         return Activator.CreateInstance(
             Type.GetType(temp.Substring(0, temp.Length - 3))
             ) as abst_Plr_action;

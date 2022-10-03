@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class reward_button : MonoBehaviour
+public class reward_button : abst_Plr_action_image
 {
     private abst_Plr_action reward1;
     private abst_tool reward2;

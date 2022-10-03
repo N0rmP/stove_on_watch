@@ -9,7 +9,7 @@ using TMPro;
 
 public class GameManager : MonoBehaviour {
     public static GameManager g = null;
-    public RewardManager rew;
+    public RewardList rew;
 
     private int left_of_range;
     bool is_combat;
@@ -26,8 +26,8 @@ public class GameManager : MonoBehaviour {
     public abst_Plr_action last_used;   
 
     private player Plr;
-    private List<abst_enemy> combat_opponents;
-    private List<abst_enemy> wondering_opponents;
+    private List<abst_enemy> combat_enemies;
+    private List<abst_enemy> wondering_enemies;
     private abst_enemy selected_enemy;
 
     public abst_event cur_event { get; set; }
@@ -42,8 +42,8 @@ public class GameManager : MonoBehaviour {
         left_of_range = 3;
         if (order_list == null) { order_list = new Queue<abst_action>(); } else { order_list.Clear(); }
         last_used = null;
-        if (combat_opponents == null) { combat_opponents = new List<abst_enemy>(); } else { combat_opponents.Clear(); }
-        if (wondering_opponents == null) { wondering_opponents = new List<abst_enemy>(); } else { wondering_opponents.Clear(); }
+        if (combat_enemies == null) { combat_enemies = new List<abst_enemy>(); } else { combat_enemies.Clear(); }
+        if (wondering_enemies == null) { wondering_enemies = new List<abst_enemy>(); } else { wondering_enemies.Clear(); }
         //GraphicManager.g.init();
         gra.temp_BFS();
         GraphicManager.g.edge_placement();
@@ -73,7 +73,7 @@ public class GameManager : MonoBehaviour {
             if (is_Plr_turn) {
                 hp_change(Plr, 1);
                 if (is_combat) {
-                    foreach (abst_enemy e in this.combat_opponents) {
+                    foreach (abst_enemy e in this.combat_enemies) {
                         e.action_choice();
                     }
                     yield return StartCoroutine(combat_unit());
@@ -85,8 +85,8 @@ public class GameManager : MonoBehaviour {
                     if (selected_node.is_enemy_here()) {
                         //this section only initiates settings of combat, actual combat begins in 'if' body above
                         this.is_Plr_turn = true;
-                        combat_opponents = selected_node.get_enemies_here();
-                        selected_enemy = combat_opponents[0];
+                        combat_enemies = selected_node.get_enemies_here();
+                        selected_enemy = combat_enemies[0];
                         GraphicManager.g.temp_combat_recover();
                         is_combat = true;
                         continue;
@@ -98,12 +98,12 @@ public class GameManager : MonoBehaviour {
                 }
             } else {
                 if (is_combat) {
-                    foreach (abst_enemy e in this.combat_opponents) {
+                    foreach (abst_enemy e in this.combat_enemies) {
                         e.act();
                     }
                     StartCoroutine(combat_unit());
                 }
-                //★wadering opponents에 있는 abst_enemy들을 이동시키기
+                //★wadering enemies에 있는 abst_enemy들을 이동시키기
                 turn_end();
             }
         }
@@ -148,9 +148,12 @@ public class GameManager : MonoBehaviour {
         bool whose_turn_when_turen_started = is_Plr_turn;
 
         while ((is_Plr_turn == whose_turn_when_turen_started | order_list.Count > 0) & is_combat) {
+            GraphicManager.g.combat_Plr_action_button_update();
             combat_result();
-            p.text = Plr.get_cur_hp().ToString();               //★graphicmanager에게 옮긴 뒤 삭제
-            e.text = selected_enemy.get_cur_hp().ToString();    //★graphicmanager에게 옮긴 뒤 삭제
+            try {
+                p.text = Plr.get_cur_hp().ToString();               //★graphicmanager에게 옮긴 뒤 삭제
+                e.text = selected_enemy.get_cur_hp().ToString();    //★graphicmanager에게 옮긴 뒤 삭제
+            } catch (Exception e) { }
             if (order_list.Count > 0) {
                 order_list.Dequeue().use();
             }
@@ -191,16 +194,20 @@ public class GameManager : MonoBehaviour {
     }
     private void combat_result() {
         int temp = 0;
-        foreach (abst_enemy a in this.combat_opponents) { temp += a.get_cur_hp(); }
+        foreach (abst_enemy a in this.combat_enemies) { temp += a.get_cur_hp(); }
 
-        //★전투 승리에 따른 보상 및 게임 정지 등의 처리
         if (temp <= 0) {
             //★전투 중인 적이 근원이라면 게임 클리어 처리
             Debug.Log("Plr win");
-            foreach (abst_enemy a in this.combat_opponents) { a.give_reward(); }
+            foreach (abst_enemy a in this.combat_enemies) { 
+                a.give_reward();
+                a.disappear();
+            }
+            combat_enemies.Clear();
+            selected_enemy = null;
             GraphicManager.g.temp_combat_remove();
             is_combat = false;
-            rew.reward_init();
+            GraphicManager.g.reward_init();
         }
         if (Plr.get_cur_hp() <= 0) { is_combat = false; }
     }
@@ -216,6 +223,10 @@ public class GameManager : MonoBehaviour {
     public node[,] get_map() { return this.map; }
     public node get_selected_node() { return this.selected_node; }
     public void set_selected_node(node n) { this.selected_node = n; }
+
+    public void remove_wondering_enemy(abst_enemy a){
+        wondering_enemies.Remove(a);
+    }
     #endregion get_set
 
     public void testing() { Debug.Log("this is GameManager"); }
@@ -223,24 +234,25 @@ public class GameManager : MonoBehaviour {
     public void Awake() {
         if (g == null) { g = this; } else { Destroy(this.gameObject); }
         DontDestroyOnLoad(this.gameObject);
-        rew = new RewardManager();
+        rew = new RewardList();
         ran = new xoshiro(); ran.seed();
         gra = new graph_generator();
         map = new node[11, 11];
         GraphicManager.g.initial_init();
         this.Plr = new player();
-
-        this.Plr.actions.Add(new temp_action());    //★
-        this.Plr.actions.Add(new temp_action2());
-        this.Plr.actions.Add(new temp_action3());
-        GraphicManager.g.combat_Plr_action_button_update();
     }
 
     public void Start()
     {
         this.init();
-        new temp_enemy().move_to(map[1,1]);
+
+        this.Plr.actions.Add(new temp_action());    //★
+        this.Plr.actions.Add(new temp_action2());
+        this.Plr.actions.Add(new temp_action3());
+        new temp_enemy().move_to(map[1, 1]);
+        new temp_enemy().move_to(map[2, 4]);
         map[2, 2].event_here = new temp_event();
+        map[3, 3].event_here = new event_shelter();
         //Debug.Log(LibraryManager.li.return_action().action_name_);
     }
 }

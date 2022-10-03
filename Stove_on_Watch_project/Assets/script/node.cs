@@ -47,7 +47,7 @@ public class node : MonoBehaviour
     }
 
     public void hand_thing(thing t, node n) {
-        n.get_things_here().Add(t);
+        n.add_thing(t);
         this.things_here.Remove(t);
     }
 
@@ -67,7 +67,6 @@ public class node : MonoBehaviour
     public void set_link(int index, node n) { this.link[index] = n; }
     public bool get_visited() { return this.visited; }
     public void set_visited(bool b) { this.visited = b; }
-    public List<thing> get_things_here() { return things_here; }
     public List<abst_enemy> get_enemies_here() {
         List<abst_enemy> temp = new List<abst_enemy>();
         foreach (thing t in things_here) {
@@ -77,6 +76,8 @@ public class node : MonoBehaviour
         }
         return temp;
     }
+    public void add_thing(thing t) { things_here.Add(t); }
+    public void remove_thing(thing t) { things_here.Remove(t); }
     #endregion get_set
 
     public void Awake() {
@@ -84,7 +85,8 @@ public class node : MonoBehaviour
     }
     public void FixedUpdate() {
         if (is_enemy_here()) { this.gameObject.GetComponent<Image>().color = new Color(1f, 0f, 0f, 1f); }
-        if (event_here != null) { this.gameObject.GetComponent<Image>().color = new Color(1f, 1f, 0f, 1f); }
+        else if (event_here != null) { this.gameObject.GetComponent<Image>().color = new Color(1f, 1f, 0f, 1f); } 
+        else { this.gameObject.GetComponent<Image>().color = new Color(1f, 1f, 1f, 1f); }
         //★things_here에 Plr 존재 시 색 변경
         //★things_here에 종류불문 enemy 존재 시 색 변경
     }

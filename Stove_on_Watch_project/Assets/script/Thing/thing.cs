@@ -23,12 +23,12 @@ public abstract class thing {
     protected abstract void personal_init();
 
     public void move_to(node n) {
-        if (get_location() != null) {
-            get_location().hand_thing(this, n);
+        if (location != null) {
+            location.hand_thing(this, n);
         } else {
-            n.get_things_here().Add(this);
+            n.add_thing(this);
         }
-        set_location(n);
+        location = n;
     }
 
     #region get_set

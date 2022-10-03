@@ -8,11 +8,11 @@ public class temp_event : abst_event
         event_name = "event_test";
     }
 
-    protected override void choice1() {
+    protected override void choice1() {     //hp +3
         GameManager.g.hp_change(GameManager.g.get_Plr(), 3);
     }
 
-    protected override void choice2() {
+    protected override void choice2() {     //leave
         this.is_event_end = true;
     }
 }

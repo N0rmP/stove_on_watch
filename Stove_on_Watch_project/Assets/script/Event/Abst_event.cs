@@ -4,7 +4,7 @@ using UnityEngine;
 
 public abstract class abst_event
 {
-    protected string event_name { get; set; }
+    public string event_name { get; set; }
     protected bool is_event_end;
     protected int choice;
     public int choice_ {
@@ -18,6 +18,7 @@ public abstract class abst_event
     }
 
     public IEnumerator happen() {
+        //★옵저버 패턴 개새끼야
         is_event_end = false;
         while (!is_event_end) {
             choice_complete = false;

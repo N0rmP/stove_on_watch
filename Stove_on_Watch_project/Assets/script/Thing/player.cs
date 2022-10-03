@@ -10,12 +10,12 @@ public class player : thing
 
     //inventory divides into 2+1, incomplete_action / tool / actions(complete and available ones)
     private List<abst_Plr_action> action_inventory;
-    public List<abst_Plr_action> action_inventory_ { get { return action_inventory; } }
     public List<abst_tool> tool_inventory;
-    public List<abst_tool> tool_inventory_ { get { return tool_inventory; } }
     public List<abst_Plr_action> actions;
-    public List<abst_Plr_action> actions_ { get { return actions; } }
     public int shards;  //shard is described only by int
+    public List<abst_Plr_action> action_inventory_ { get { return action_inventory; } }
+    public List<abst_tool> tool_inventory_ { get { return tool_inventory; } }
+    public List<abst_Plr_action> actions_ { get { return actions; } }
 
     public player() { init(); } //★게임 시작 시 어차피 초기화한다면 이것은 필요없다
 
