@@ -11,14 +11,25 @@ public abstract class abst_enemy : thing
     protected List<abst_enemy_action> cur_action_list;
     protected List<abst_enemy_action> discarded_action_list;
     protected Queue<abst_enemy_action> next_actions;
+    protected List<abst_power> passives;
 
-    private List<abst_power> passives;
+    public List<abst_enemy_action> cur_action_list_ { get { return cur_action_list; } }
+    public List<abst_enemy_action> discarded_action_list_ { get { return discarded_action_list; } }
+    public Queue<abst_enemy_action> next_actions_ { get { return next_actions; } }
+    public List<abst_power> passives_ { get { return passives; } }
+
+    protected abst_chasable chase_module;
 
     //protected static abst_action ender = new turn_end();
 
     public enum enemy_tiers { normal, elite, root }
     protected enemy_tiers enemy_tier;
     public enemy_tiers enemy_tier_ { get; }
+
+    public abst_enemy(int x, int y) {
+        move_to(GameManager.g.get_map()[x, y]);
+        passives = new List<abst_power>();
+    }
 
     protected override void personal_init() {
         switch ((int)enemy_tier)
@@ -33,9 +44,29 @@ public abstract class abst_enemy : thing
         if (cur_action_list == null) { cur_action_list = new List<abst_enemy_action>(); } else { cur_action_list.Clear(); }
         if (discarded_action_list == null) { discarded_action_list = new List<abst_enemy_action>(); } else { discarded_action_list.Clear(); }
         if (next_actions == null) { next_actions = new Queue<abst_enemy_action>(); } else { next_actions.Clear(); }
+        chase_module = new near_chaser(this);
     }
-    protected virtual void upgrade() { }
 
+    public void engage() {
+        GraphicManager.g.prepare_combat_board(this);
+        combat_board.GetComponent<RectTransform>().anchoredPosition = new Vector2(-450,100);   //★적 여러 명 등장 시 어떻게?
+        foreach (abst_power psv in passives) {
+            powers.Add(psv);
+        }
+        foreach (abst_power ap in powers) {
+            GraphicManager.g.prepare_power_block(ap);
+        }
+        arrange_powers();
+        list_reset();
+    }
+
+    public void combat_escape() {
+        GraphicManager.g.push_combat_board(combat_board);
+        combat_board.GetComponent<RectTransform>().localPosition = new Vector2(0, 1600);   //★적 여러 명 등장 시 어떻게?
+    }
+
+    protected virtual void upgrade() { }
+    
     public void act() {
         int temp = next_actions.Count;
         abst_enemy_action temp_enemy_action;
@@ -55,13 +86,28 @@ public abstract class abst_enemy : thing
                 for (int i = 0; i < 3; i++) { temp_r.reward_add_action(); }
                 temp_r.reward_add(GameManager.g.ran.xoshiro_range(100, 120) );   //★2단계 맵이라면 보상 증가
                 break;
-            //★정예 보상 준비, 근원 보상은 게임 클리어이므로 GameManager 클래스에서 준비할 것
+            case 1:
+                //★정예 보상 준비
+                //이 노드와 주변 노드 연결
+                break;
+            case 2:
+                //★GameManager에 게임 클리어 함수 마련 후, 그거 실행
+                break;
+        }
+    }
+
+    public void map_move() {
+        int direction = chase_module.get_next_move();
+        if (direction != -1)
+            move_to(location.get_link()[direction]);
+        else {
+            //Debug.Log("route not found");
         }
     }
 
     public void disappear() {
         location.remove_thing(this);
-        GameManager.g.remove_wondering_enemy(this);
+        GameManager.g.remove_wandering_enemy(this);
     }
 
     #region action_list
@@ -69,16 +115,16 @@ public abstract class abst_enemy : thing
         int temp;
         for (int i = 0; i < actions_per_turn; i++)
         {
+            if (cur_action_list.Count <= 0)
+                list_reset();
             temp = GameManager.g.ran.xoshiro_range(cur_action_list.Count);
             next_actions.Enqueue(cur_action_list[temp]);
             cur_action_list.RemoveAt(temp);
-            if (cur_action_list.Count <= 0) {
-                list_reset();
-            }
+            
         }
     }
 
-    protected void list_reset() {
+    public void list_reset() {
         if (discarded_action_list.Count > 0) {
             //★행동이 일정한 순서로 배열되게 만들 것
             cur_action_list = discarded_action_list.ToList();

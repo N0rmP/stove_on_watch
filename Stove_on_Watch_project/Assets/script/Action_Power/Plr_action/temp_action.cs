@@ -5,13 +5,12 @@ using UnityEngine;
 public class temp_action : abst_Plr_action
 {
     public temp_action() : base() {
-        action_name = "temp_action";
         initial_max_cost = 2;
         max_cost = 2;
         cur_cooltime = 0;
         is_savable = false;
         tags.Add(concepts.haste);
-        power_made_by_this = new temp_power(this);
+        power_made_by_this = new temp_power(owner, this);
     }
     protected override void effect()
     {

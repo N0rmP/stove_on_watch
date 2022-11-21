@@ -20,6 +20,7 @@ public abstract class abst_event
     public IEnumerator happen() {
         //★옵저버 패턴 개새끼야
         is_event_end = false;
+        GraphicManager.g.temp_event_recover();
         while (!is_event_end) {
             choice_complete = false;
             GraphicManager.g.event_output(this.event_name);

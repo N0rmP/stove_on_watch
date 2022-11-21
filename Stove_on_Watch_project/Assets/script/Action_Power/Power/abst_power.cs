@@ -2,19 +2,54 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public abstract class abst_power
-{
-    protected int main_num;
-    protected int sub_num;
+public abstract class abst_power {
+    protected thing owner;
+    //assigned_block is graphic obejct that shows this power's information, power information is so involved in this class that it's here and GraphicManager manages available blocks collections
+    protected GameObject assigned_block;
     protected bool is_visable;
+    protected string title;
+    protected string description;
 
-
-    public void init()
-    {
-        this.main_num = 0;
-        this.sub_num = 0;
+    public abst_power(thing p_owner) {
+        owner = p_owner;
+        temp_json temp_j = GraphicManager.g.get_json("Power/" + this.GetType().ToString());
+        title = temp_j.s1;
+        description = temp_j.s2;
     }
 
+    //★현 상태에서 power의 init 함수는 큰 필요가 없어 보인다, 추후에도 이러면 삭제할 것
+    public virtual void init() { }
+
+    //Plr card UI is only used by Plr and its update method is in its UI script, power is used by both Plr and enemy and its update method is in this class so that programmer can adjust its update timing
+    public virtual void update_power() { }
+
+    public void return_block() {
+        owner.powers.Remove(this);
+        if (owner.get_cur_hp() > 0)
+            owner.arrange_powers();
+        GraphicManager.g.push_power_block(assigned_block);
+    }
+
+    #region get_set
+    public thing get_owner() {
+        return owner;
+    }
+    public GameObject get_block() {
+        return assigned_block;
+    }
+    public void set_block(GameObject g) {
+        assigned_block = g;
+    }
+    public string get_title() {
+        return title;
+    }
+    public string get_description() {
+        return description;
+    }
+    #endregion get_set
+
+
+    #region timing
     public virtual void on_combat_start() { }
     public virtual void on_Plr_turn_start() { }
     public virtual void on_action() { }
@@ -28,6 +63,7 @@ public abstract class abst_power
     public virtual void on_Plr_turn_end() { }
     public virtual void on_enemy_turn__start() { }
     public virtual void on_enemy_turn_end() { }
+    public virtual void on_ROLL() { }
     public virtual void on_cost_update() { }
     public virtual void on_attack_update() { }
     public virtual void on_block_update() { }
@@ -44,4 +80,5 @@ public abstract class abst_power
     public List<eff_exist> on_attacked;   //!
     public List<eff_exist> on_block;    //!
     public List<eff_exist> on_hp_down;  //!*/
+    #endregion timing
 }

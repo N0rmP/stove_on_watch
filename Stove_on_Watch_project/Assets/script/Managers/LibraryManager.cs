@@ -12,6 +12,8 @@ public class LibraryManager : MonoBehaviour
     //private List<string> used_action_list;
     private List<string> tool_list;
     private List<string> enemy_list;
+    private List<string> elite_enemy_list;
+    private List<string> root_enemy_list;
     //private List<string> used_enemy_list;
     private List<string> event_first_list;
     //private List<string> used_event_first_list;
@@ -28,6 +30,8 @@ public class LibraryManager : MonoBehaviour
         //if (used_action_list == null) { used_action_list = new List<string>(); } else { used_action_list.Clear(); }
         if (tool_list == null) { tool_list = new List<string>(); } else { tool_list.Clear(); }
         if (enemy_list == null) { enemy_list = new List<string>(); } else { enemy_list.Clear(); }
+        if (elite_enemy_list == null) { elite_enemy_list = new List<string>(); } else { elite_enemy_list.Clear(); }
+        if (root_enemy_list == null) { root_enemy_list = new List<string>(); } else { root_enemy_list.Clear(); }
         //if (used_enemy_list == null) { used_enemy_list = new List<string>(); } else { used_enemy_list.Clear(); }
         if (event_first_list == null) { event_first_list = new List<string>(); } else { event_first_list.Clear(); }
         //if (used_event_first_list == null) { used_event_first_list = new List<string>(); } else { used_event_first_list.Clear(); }
@@ -46,24 +50,39 @@ public class LibraryManager : MonoBehaviour
         d = new DirectoryInfo("Assets/script/Action_Power/Tool");
         f = d.GetFiles("*.cs");
         foreach (FileInfo file in f) {
-            action_list.Add(file.Name);
+            tool_list.Add(file.Name);
         }
         d = new DirectoryInfo("Assets/script/Thing/Enemy/Normal");
         f = d.GetFiles("*.cs");
         foreach (FileInfo file in f) {
-            action_list.Add(file.Name);
+            enemy_list.Add(file.Name);
+        }
+        d = new DirectoryInfo("Assets/script/Thing/Enemy/Elite");
+        f = d.GetFiles("*.cs");
+        foreach (FileInfo file in f) {
+            elite_enemy_list.Add(file.Name);
+        }
+        d = new DirectoryInfo("Assets/script/Thing/Enemy/Root");
+        f = d.GetFiles("*.cs");
+        foreach (FileInfo file in f) {
+            root_enemy_list.Add(file.Name);
         }
         d = new DirectoryInfo("Assets/script/Event/Event_first");
         f = d.GetFiles("*.cs");
         foreach (FileInfo file in f) {
-            action_list.Add(file.Name);
+            event_first_list.Add(file.Name);
         }
         d = new DirectoryInfo("Assets/script/Event/Event_second");
         f = d.GetFiles("*.cs");
         foreach (FileInfo file in f) {
-            action_list.Add(file.Name);
+            event_second_list.Add(file.Name);
         }
-        //★ability library 추가
+        d = new DirectoryInfo("Assets/script/Event/Event_second");
+        f = d.GetFiles("*.cs");
+        foreach (FileInfo file in f) {
+            event_both_list.Add(file.Name);
+        }
+        //★ability library 추가 (보류)
     }
 
     /*★지정되지 않은 파일로부터 library를 추가할 수 있도록 하여 확장성을 확보할 것
@@ -104,6 +123,15 @@ public class LibraryManager : MonoBehaviour
             ) as abst_enemy;
     }
 
+    public abst_enemy return_elit_enemy() {
+        //★root 선택 방법부터 생각할 것
+        return null;
+    }
+
+    public abst_enemy return_root_enemy() {
+        return null;
+    }
+
     public abst_event return_event(bool is_first) {
         List<string> ttemp = is_first ? event_first_list : event_second_list;
         code = GameManager.g.ran.xoshiro_range(event_both_list.Count + ttemp.Count);
@@ -129,6 +157,5 @@ public class LibraryManager : MonoBehaviour
     {
         if (li == null) { li = this; } else { Destroy(this.gameObject); }
         DontDestroyOnLoad(this.gameObject);
-        init(); //★
     }
 }

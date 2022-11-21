@@ -8,7 +8,7 @@ TagManager:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - layer_test
   - Water
   - UI
   - 4tier_UI
@@ -43,4 +43,7 @@ TagManager:
     locked: 0
   - name: testing
     uniqueID: 209952981
+    locked: 0
+  - name: testing2
+    uniqueID: 1130705357
     locked: 0

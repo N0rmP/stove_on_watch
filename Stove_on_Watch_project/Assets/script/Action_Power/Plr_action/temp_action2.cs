@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class temp_action2 : abst_Plr_action {
     public temp_action2() : base() {
-        action_name = "temp_action2";
         initial_max_cost = 2;
         max_cost = 2;
         cur_cooltime = 0;

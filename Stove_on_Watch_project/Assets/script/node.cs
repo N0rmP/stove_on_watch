@@ -10,6 +10,8 @@ public class node : MonoBehaviour
     private int[] coor = new int[2];
     private node[] link = new node[4];  //0 up, 1 right, 2 down, 3 left
     private bool visited;
+    private bool reachable_center;
+    public int route_homedirection;
     private List<thing> things_here;
 
     public void init(int x, int y) {
@@ -17,8 +19,10 @@ public class node : MonoBehaviour
         this.coor[1] = y;
         for (int i = 0; i < 4; i++) { this.link[i] = null; }
         this.visited = false;
+        this.route_homedirection = -1;
         this.things_here.Clear();
         this.event_here = null;
+        this.gameObject.GetComponent<Image>().color = new Color(1f, 1f, 1f, 1f);
     }
 
     public void connect(node n, int dir) {
@@ -60,6 +64,28 @@ public class node : MonoBehaviour
         return false;
     }
 
+    public bool is_Plr_here() {
+        foreach (thing t in things_here)
+            if (t.GetType() == typeof(player))
+                return true;
+        return false;
+    }
+
+    //called when this node enter or get out of player's POV
+    public void POV_process(bool entered) {
+        //★여유가 있다면 색으로 나타내는 대신 플레이어/몬스터는 아이콘을 올리는 것으로 변경할 것
+        if (entered) {
+            if (is_Plr_here()) this.gameObject.GetComponent<Image>().color = new Color(0f, 1f, 0f, 1f);
+            else if (is_enemy_here()) this.gameObject.GetComponent<Image>().color = new Color(1f, 0f, 0f, 1f);
+            else if (event_here != null) this.gameObject.GetComponent<Image>().color = new Color(1f, 1f, 0f, 1f);
+            else this.gameObject.GetComponent<Image>().color = new Color(1f, 1f, 1f, 1f);
+        } else {
+            this.gameObject.GetComponent<Image>().color = new Color(1f, 1f, 1f, 1f);
+            this.gameObject.GetComponent<Image>().color = new Color(0.6f, 0.6f, 0.6f, 1f);
+        }
+
+    }
+
     #region get_set
     public int[] get_coor() { return this.coor; }
     public void set_coor(int[] i) { this.coor = i; }
@@ -83,12 +109,6 @@ public class node : MonoBehaviour
     public void Awake() {
         things_here = new List<thing>();
     }
-    public void FixedUpdate() {
-        if (is_enemy_here()) { this.gameObject.GetComponent<Image>().color = new Color(1f, 0f, 0f, 1f); }
-        else if (event_here != null) { this.gameObject.GetComponent<Image>().color = new Color(1f, 1f, 0f, 1f); } 
-        else { this.gameObject.GetComponent<Image>().color = new Color(1f, 1f, 1f, 1f); }
-        //★things_here에 Plr 존재 시 색 변경
-        //★things_here에 종류불문 enemy 존재 시 색 변경
-    }
+
     public void existence_test() { Debug.Log("cordinate of this is : " + this.coor[0] + ", " + this.coor[1]); }
 }

@@ -4,10 +4,23 @@ using UnityEngine;
 
 public class trivial_buttons : MonoBehaviour
 {
-    private abst_action ender;
-    public trivial_buttons() { this.ender = new turn_end(); }
+    public void recover_action_list() {
+        GraphicManager.g.show_action_list();
+    }
 
-    public void turn_end() { GameManager.g.get_order_list().Enqueue(this.ender);}
+    public void remove_action_list() {
+        GraphicManager.g.hide_action_list();
+    }
+
+    public void turn_end() {
+        if (GameManager.g.get_is_combat())
+            GameManager.g.get_order_list().Enqueue(
+                GameManager.g.TE);
+        else {
+            GameManager.g.set_selected_node(null);
+        }
+
+    }
     public void reward_end() { 
         GraphicManager.g.temp_reward_remove();
         GameManager.g.rew.init();

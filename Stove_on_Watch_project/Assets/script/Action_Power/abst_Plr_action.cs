@@ -41,10 +41,20 @@ public abstract class abst_Plr_action : abst_action
     }
     #region get_set
     public int get_cur_cooltime() { return this.cur_cooltime; }
-    public void set_cur_cooltime(bool is_plus, int i) {
-        if (is_plus) { this.cur_cooltime = (this.cur_cooltime + i < 0) ? 0 : this.cur_cooltime + i; }
-        else { this.cur_cooltime = (i < 0) ? 0 : i; }
-        //★사용 가능 여부와 불가능 여부 표현할 방법 찾기
+    public void set_cur_cooltime(int i, bool is_plus = false) {
+        if (is_plus) { 
+            this.cur_cooltime = (this.cur_cooltime + i < 0) ? 0 : this.cur_cooltime + i; 
+        } else { 
+            this.cur_cooltime = (i < 0) ? 0 : i; 
+        }
+    }
+    public int get_cost() { return max_cost; }
+    public void set_cost(bool is_plus, int i) {
+        if (is_plus) {
+            max_cost += i;
+        } else {
+            max_cost = i;
+        }
     }
     #endregion get_set
 }
