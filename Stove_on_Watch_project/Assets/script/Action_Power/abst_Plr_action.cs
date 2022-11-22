@@ -17,6 +17,10 @@ public abstract class abst_Plr_action : abst_action
     public abst_Plr_action() {
         owner = GameManager.g.get_Plr();
         tags = new HashSet<concepts>();
+        initial_max_cost = 0;
+        max_cost = 0;
+        cur_cooltime = 0;
+        is_savable = false;
     }
 
     public override void use() {

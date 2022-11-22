@@ -18,10 +18,11 @@ public class shards : abst_Plr_action
     }
 
     public shards() : base() {
-        initial_max_cost = 0;
-        max_cost = 0;
-        cur_cooltime = 0;
-        is_savable = false;
+        amount = 0;
+    }
+
+    public override void use() {
+        GameManager.g.get_Plr().shards += amount;
         amount = 0;
     }
 

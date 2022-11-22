@@ -84,11 +84,12 @@ public abstract class abst_enemy : thing
         switch ((int)enemy_tier) {
             case 0:
                 for (int i = 0; i < 3; i++) { temp_r.reward_add_action(); }
-                temp_r.reward_add(GameManager.g.ran.xoshiro_range(100, 120) );   //★2단계 맵이라면 보상 증가
+                temp_r.reward_add_shards(GameManager.g.ran.xoshiro_range(100, 120) );   //★2단계 맵이라면 보상 증가
                 break;
             case 1:
                 //★정예 보상 준비
                 GameManager.g.set_elite_defeated(true);
+                temp_r.reward_add_heal();
                 break;
             case 2:
                 //★GameManager에 게임 클리어 함수 마련 후, 그거 실행

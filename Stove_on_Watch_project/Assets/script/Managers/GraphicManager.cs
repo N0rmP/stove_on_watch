@@ -42,7 +42,6 @@ public class GraphicManager : MonoBehaviour
     public GameObject reward_button_prefab;
     private GameObject[] reward_buttons;
     public GameObject[] reward_buttons_ { get { return reward_buttons; } }
-    private shards rewards_shard;
 
     public GameObject inventory_panel_outter;
     public GameObject inventory_panel_inner;
@@ -110,7 +109,6 @@ public class GraphicManager : MonoBehaviour
             reward_buttons[i] = Instantiate(reward_button_prefab, new Vector2(2100f, 2200f), Quaternion.identity, canvas.transform);
             //reward_buttons[i].transform.SetParent(reward_panel.transform, false);
         }
-        rewards_shard = new shards();
 
         inventory_buttons = new List<GameObject>();
 
@@ -337,7 +335,6 @@ public class GraphicManager : MonoBehaviour
             foreach (abst_Plr_action a in GameManager.g.rew.rewards_action_) {
                 reward_buttons_[temp].GetComponent<reward_button>().set_reward(a);
                 reward_buttons_[temp].GetComponent<reward_button>().card_update();
-                //reward_buttons_[temp].SetActive(true);
                 temp++;
             }
             /*foreach (abst_tool a in GameManager.g.rew.rewards_tool_) {
@@ -346,10 +343,10 @@ public class GraphicManager : MonoBehaviour
                 reward_buttons_[temp].SetActive(true);
                 temp++;
             }*/
+            /*
             rewards_shard.amount_ = GameManager.g.rew.rewards_shard_;
             reward_buttons_[temp].GetComponent<reward_button>().set_reward(rewards_shard);
-            reward_buttons_[temp].GetComponent<reward_button>().card_update();
-            //reward_buttons_[temp].SetActive(true);
+            reward_buttons_[temp].GetComponent<reward_button>().card_update();*/
             while (++temp < 10) {
                 reward_buttons_[temp].SetActive(false);
             }

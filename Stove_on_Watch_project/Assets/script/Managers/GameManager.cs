@@ -19,6 +19,7 @@ public class GameManager : MonoBehaviour {
     public xoshiro ran;
     graph_generator gra;
 
+    private bool is_first_stage;
     private node[,] map;
     //0~3 : up/right/down/left, 4 : diagnol direction nodes (clockwise from right upper one)
     private node[,] Plr_POV;
@@ -47,6 +48,7 @@ public class GameManager : MonoBehaviour {
     #region preparation
     public void init()  //GameManager's init() means 'entire reset of the total game'
     {
+        is_first_stage = true;
         LibraryManager.li.init();
         rew.init();
         left_of_range = 3;
@@ -69,9 +71,6 @@ public class GameManager : MonoBehaviour {
         StartCoroutine(adventure());
     }
     #endregion preparation
-
-    #region general
-    #endregion general
 
     #region adventure
     private IEnumerator adventure() {
@@ -102,6 +101,8 @@ public class GameManager : MonoBehaviour {
                         foreach (node n in center_nodes) {
                             if (n == Plr.get_location()) { 
                                 //★Coroutine 종료, 2단계 진입 준비
+                                //map, enemy list 전체, node의 things들 (★그 외 기타 등등) 초기화
+                                //is_first_stage = false;
                             }
                         }
                         Plr.move_to(selected_node);
@@ -274,7 +275,7 @@ public class GameManager : MonoBehaviour {
             foreach (abst_power a in receiver.powers) { value = a.on_before_hp_up(value); }
 
         int temp_res = receiver.get_cur_hp() + value;
-        if (temp_res > receiver.get_max_hp()) {
+        if (temp_res > receiver.get_max_hp()) 
             receiver.set_cur_hp(false, receiver.get_max_hp());
         else if (temp_res < 0)
             receiver.set_cur_hp(false, 0);
