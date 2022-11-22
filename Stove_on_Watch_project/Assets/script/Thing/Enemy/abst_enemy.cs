@@ -88,7 +88,7 @@ public abstract class abst_enemy : thing
                 break;
             case 1:
                 //★정예 보상 준비
-                //이 노드와 주변 노드 연결
+                GameManager.g.set_elite_defeated(true);
                 break;
             case 2:
                 //★GameManager에 게임 클리어 함수 마련 후, 그거 실행

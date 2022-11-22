@@ -268,11 +268,23 @@ public class GameManager : MonoBehaviour {
         //¡Úforeach (abst_power a in giver.powers) { value = a.on_after_block(); }
     }
     public void hp_change(thing receiver, int value) {
-        if (receiver.get_cur_hp() + value <= receiver.get_max_hp()) {
-            if (value < 0) { foreach (abst_power a in receiver.powers) { value = a.on_before_hp_down(value); } } else if (value > 0) { foreach (abst_power a in receiver.powers) { value = a.on_before_hp_up(value); } }
+        if (value < 0)
+            foreach (abst_power a in receiver.powers) { value = a.on_before_hp_down(value); }
+        else if (value > 0)
+            foreach (abst_power a in receiver.powers) { value = a.on_before_hp_up(value); }
+
+        int temp_res = receiver.get_cur_hp() + value;
+        if (temp_res > receiver.get_max_hp()) {
+            receiver.set_cur_hp(false, receiver.get_max_hp());
+        else if (temp_res < 0)
+            receiver.set_cur_hp(false, 0);
+        else
             receiver.set_cur_hp(true, value);
-            if (value < 0) { foreach (abst_power a in receiver.powers) { value = a.on_after_hp_down(value); } } else if (value > 0) { foreach (abst_power a in receiver.powers) { value = a.on_after_hp_up(value); } }
-        }
+        
+        if (value < 0) 
+            foreach (abst_power a in receiver.powers) { value = a.on_after_hp_down(value); } 
+        else if (value > 0) 
+            foreach (abst_power a in receiver.powers) { value = a.on_after_hp_up(value); }
     }
     public void haste(thing receiver) {
         //foreach (abst_power a in receiver.powers) { a.on_before_haste(); }
