@@ -24,8 +24,10 @@ public abstract class abst_Plr_action : abst_action
     }
 
     public override void use() {
-        if (this.cur_cooltime <= 0)
+        if (this.cur_cooltime <= 0 && (owner.get_cur_hope() >= max_cost))
         {
+            //★!is_savable이라면 희망 비용 선택, 희망이 충분한지 검사, 충분하다면 비용을 지불하고 effect 실행
+            owner.set_cur_hope(true, -max_cost);
             effect();
             if (tags.Contains(concepts.simple)) { cur_cooltime = 1; }
             else if (tags.Contains(concepts.complex)) { cur_cooltime = 3; }
@@ -38,6 +40,8 @@ public abstract class abst_Plr_action : abst_action
     }
 
     protected abstract void effect();
+
+    public virtual void acquired() { }
 
     protected int cost_choice() {
         //★슬라이더를 사용해 this.max_cost 이하의 희망 사용량 지정

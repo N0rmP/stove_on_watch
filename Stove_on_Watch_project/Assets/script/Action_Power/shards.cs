@@ -12,7 +12,6 @@ public class shards : abst_Plr_action
 
     public override string action_description_ {
         get {
-            Debug.Log(action_description + amount.ToString());
             return (action_description + amount.ToString());
         }
     }
@@ -22,7 +21,7 @@ public class shards : abst_Plr_action
     }
 
     public override void use() {
-        GameManager.g.get_Plr().shards += amount;
+        GameManager.g.get_Plr().set_shards(true, amount);
         amount = 0;
     }
 

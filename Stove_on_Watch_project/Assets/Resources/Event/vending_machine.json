@@ -1,0 +1,8 @@
+{
+	"s1" : "Vending machine",
+	"s2" : "It is a gleaming statue shaped of a man holding out his hand. It might be a kind of vending machine that serve you at cost of shards.",
+	"s" : [
+		"Shards -30, player's hp +5",
+		"Leave"
+	]
+}

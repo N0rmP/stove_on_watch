@@ -1,0 +1,9 @@
+{
+	"s1" : "Merchant",
+	"s2" : "Well-armed man approaches. He is not hostile to you, introduces himself a merchant and offers a deal.",
+	"s" : [
+		"Shards -30, Inventory action +1",
+		"Action -1, Shards +80",
+		"Leave"
+	]
+}

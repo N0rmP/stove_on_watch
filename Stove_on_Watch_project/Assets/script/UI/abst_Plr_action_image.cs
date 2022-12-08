@@ -16,6 +16,19 @@ public abstract class abst_Plr_action_image : MonoBehaviour
         this.gameObject.transform.GetChild(2).GetComponent<TextMeshProUGUI>().text = target.action_description_;
         this.gameObject.transform.GetChild(3).GetChild(0).GetComponent<TextMeshProUGUI>().text = target.get_cost().ToString();
 
+        try {
+            GraphicManager.g.set_image(
+                gameObject.transform.GetChild(1).gameObject,
+                Resources.Load<Sprite>("Sprite/" + target.GetType().ToString())
+                );
+        } catch (Exception e) {
+            GraphicManager.g.set_image(
+                gameObject.transform.GetChild(1).gameObject,
+                Resources.Load<Sprite>("Sprite/shards")
+                );
+            Debug.Log("errored");
+        }
+
         if (this.GetType() != typeof(reward_button)) {
             if (target.get_cur_cooltime() > 0) {
                 this.gameObject.transform.GetChild(4).gameObject.SetActive(true);

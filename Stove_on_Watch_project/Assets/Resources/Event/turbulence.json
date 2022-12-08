@@ -1,0 +1,8 @@
+{
+	"s1" : "Turbulence",
+	"s2" : "Wind is roaring. Perhaps you could go somewhere by throwing your body in.",
+	"s" : [
+		"Move to random place",
+		"Leave"
+	]
+}

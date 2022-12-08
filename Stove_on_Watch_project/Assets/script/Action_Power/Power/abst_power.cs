@@ -6,15 +6,23 @@ public abstract class abst_power {
     protected thing owner;
     //assigned_block is graphic obejct that shows this power's information, power information is so involved in this class that it's here and GraphicManager manages available blocks collections
     protected GameObject assigned_block;
-    protected bool is_visable;
+    protected bool is_visible;
     protected string title;
     protected string description;
+    protected int count;
+    public int count_{
+        get { return count; }
+        set {
+            if (count < 0)
+                count = value;
+            else
+                count += value;
+            }
+        }
 
     public abst_power(thing p_owner) {
         owner = p_owner;
-        temp_json temp_j = GraphicManager.g.get_json("Power/" + this.GetType().ToString());
-        title = temp_j.s1;
-        description = temp_j.s2;
+        count = -1; 
     }
 
     //★현 상태에서 power의 init 함수는 큰 필요가 없어 보인다, 추후에도 이러면 삭제할 것
@@ -24,10 +32,8 @@ public abstract class abst_power {
     public virtual void update_power() { }
 
     public void return_block() {
-        owner.powers.Remove(this);
-        if (owner.get_cur_hp() > 0)
-            owner.arrange_powers();
         GraphicManager.g.push_power_block(assigned_block);
+        assigned_block = null;
     }
 
     #region get_set
@@ -40,30 +46,48 @@ public abstract class abst_power {
     public void set_block(GameObject g) {
         assigned_block = g;
     }
+    public bool get_visible() {
+        return is_visible;
+    }
+    public void set_visible(bool b) {
+        is_visible = b;
+        if (is_visible) {
+            temp_json temp_j = GraphicManager.g.get_json("Power/" + this.GetType().ToString());
+            title = temp_j.s1;
+            description = temp_j.s2;
+        }
+    }
     public string get_title() {
         return title;
     }
-    public string get_description() {
-        return description;
+    public virtual string get_description() {
+        if (count > 1)
+            return description + "\nIt remains " + count;
+        else
+            return description;
     }
     #endregion get_set
 
 
     #region timing
     public virtual void on_combat_start() { }
+    public virtual void on_combat_end() { }
     public virtual void on_Plr_turn_start() { }
     public virtual void on_action() { }
-    public virtual int on_before_attack(thing receiver, int v) { return v; } //parameter 'receiver' exists for 'mother'
-    public virtual int on_after_attack(int v) { return v; }
+    public virtual void on_before_attack(thing receiver, ref int v) { } //parameter 'receiver' exists for 'mother'
+    public virtual void on_after_attack(int v) { }
     public virtual int on_attacked(int v) { return v; }
-    public virtual int on_before_hp_down(int v) { return v; }
-    public virtual int on_after_hp_down(int v) { return v; }
-    public virtual int on_before_hp_up(int v) { return v; }
-    public virtual int on_after_hp_up(int v) { return v; }
+    public virtual void on_before_block(ref int v) { }
+    public virtual void on_after_block(int v) { }
+    public virtual void on_before_hp_down(ref int v) { }
+    public virtual void on_after_hp_down(ref int v) { }
+    public virtual void on_before_hp_up(ref int v) { }
+    public virtual void on_after_hp_up(ref int v) { }
     public virtual void on_Plr_turn_end() { }
-    public virtual void on_enemy_turn__start() { }
+    public virtual void on_enemy_turn_start() { }
     public virtual void on_enemy_turn_end() { }
-    public virtual void on_ROLL() { }
+    public virtual void on_before_ROLL(ref int predetermined_value, ref int max_or_min, ref int creas_set) { }
+    public virtual void on_after_ROLL(ref int roll) { }
     public virtual void on_cost_update() { }
     public virtual void on_attack_update() { }
     public virtual void on_block_update() { }

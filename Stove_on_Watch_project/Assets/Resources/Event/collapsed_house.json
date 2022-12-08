@@ -1,0 +1,8 @@
+{
+	"s1" : "Collapsed house",
+	"s2" : "Someone is calling you from a collapsed house debris. He seems trapped in it. He promises to make it up to you if you help him.",
+	"s" : [
+		"hope -50, Inventory action +1, Shards +40",
+		"Leave"
+	]
+}

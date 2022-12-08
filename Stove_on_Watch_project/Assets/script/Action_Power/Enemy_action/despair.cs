@@ -9,9 +9,10 @@ public class despair : abst_enemy_action
 
     public despair(abst_enemy ae, int decrease_param = 20) : base(ae) {
         decrease_value = decrease_param;
+        action_description += decrease_param.ToString();
     }
 
     public override void use() {
-        GameManager.g.get_Plr().set_cur_hope(true, decrease_value);
+        GameManager.g.get_Plr().set_cur_hope(true, -decrease_value);
     }
 }

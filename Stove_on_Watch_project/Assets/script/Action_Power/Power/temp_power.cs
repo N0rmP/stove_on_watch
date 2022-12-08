@@ -8,7 +8,7 @@ public class temp_power : abst_power
     private abst_Plr_action target;
 
     public temp_power(thing p_owner, abst_Plr_action a) : base (p_owner) {
-        is_visable = false;
+        set_visible(false);
         target = a;
         //init();   //player can check this card's count number and prepare his initial 2~3 turn stategy, so initializing before each combat is unnecessary
     }

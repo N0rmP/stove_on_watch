@@ -6,6 +6,8 @@ public class graph_generator
 {
     node[,] U2;  //means Connected graph
     int edge_num;
+    private bool is_first_stage;
+    public int elite_pos;
     //int[,] graph_distancer;
 
     private void init()
@@ -39,6 +41,10 @@ public class graph_generator
             this.U2[x2, y2].set_visited(true);
             this.edge_num++;
         }
+    }
+
+    public bool is_placable(int x, int y) {
+        return (!is_first_stage | x < 4 | x > 6 | y < 4 | y > 6) & (x >= 0 & x <= 10 & y >= 0 & y <= 10);
     }
 
     private void node_to_node(node start, node end)
@@ -75,30 +81,29 @@ public class graph_generator
     public void temp_BFS(/*bool use_random*/)
     {
         this.init();
+        is_first_stage = GameManager.g.get_is_first_stage();
 
         List<node> scanning = new List<node>(); //unlike usual BFS this BFS enqueue unvisited node into random index of the collection, so it uses list insted of queue
         List<int> yet_un = new List<int>();
         int[] cur_coor;
         int temp_ran = -1; int temp = 0;
 
+        //BFS starting point
         while (true) {
             temp_ran = GameManager.g.ran.xoshiro_range(121);
             if (temp_ran / 11 < 4 | temp_ran / 11 > 6 | temp_ran % 11 < 4 | temp_ran % 11 > 6) { break; }
         }
         scanning.Add(U2[temp_ran / 11, temp_ran % 11]);
 
+
         int[] directions = new int[4] { 0, 0, 1, -1 };
         U2[temp_ran / 11, temp_ran % 11].set_visited(true);
         while (scanning.Count > temp)
         {
             cur_coor = scanning[temp].get_coor();
-            for (int i = 0; i < 4; i++)
-            {
-                if ((cur_coor[0] + directions[i] < 4 | cur_coor[0] + directions[i] > 6 | cur_coor[1] + directions[3 - i] < 4 | cur_coor[1] + directions[3 - i] > 6) &
-                (cur_coor[0] + directions[i] >= 0 & cur_coor[0] + directions[i] <= 10 & cur_coor[1] + directions[3 - i] >= 0 & cur_coor[1] + directions[3 - i] <= 10))
-                {
-                    if (U2[cur_coor[0] + directions[i], cur_coor[1] + directions[3 - i]] == null)
-                    {
+            for (int i = 0; i < 4; i++) {
+                if (is_placable(cur_coor[0] + directions[i], cur_coor[1] + directions[3 - i])) {
+                    if (!U2[cur_coor[0] + directions[i], cur_coor[1] + directions[3 - i]].get_visited()) {
                         //U2[cur_coor[0] + directions[i], cur_coor[1] + directions[3 - i]] = new node(cur_coor[0] + directions[i], cur_coor[1] + directions[3 - i]);
                         this.generator_connect(cur_coor[0], cur_coor[1], cur_coor[0] + directions[i], cur_coor[1] + directions[3 - i]);
                         temp_ran = GameManager.g.ran.xoshiro_range(temp + 1, scanning.Count);
@@ -108,16 +113,22 @@ public class graph_generator
             }
             temp++;
         }
-        temp_ran = GameManager.g.ran.xoshiro_range(4);
-        if (temp_ran != 0) { generator_connect(4, 4, 3, 4); generator_connect(4, 4, 4, 3); }
-        else { generator_connect(3, 3, 3, 4); generator_connect(3, 3, 4, 3); }
-        if (temp_ran != 1) { generator_connect(4, 6, 3, 6); generator_connect(4, 6, 4, 7); }
-        else { generator_connect(3, 7, 3, 6); generator_connect(3, 7, 4, 7); }
-        if (temp_ran != 2) { generator_connect(6, 4, 7, 4); generator_connect(6, 4, 6, 3); }
-        else { generator_connect(7, 3, 7, 4); generator_connect(7, 3, 6, 3); }
-        if (temp_ran != 3) { generator_connect(6, 6, 7, 6); generator_connect(6, 6, 6, 7); }
-        else { generator_connect(7, 7, 7, 6); generator_connect(7, 7, 6, 7); }
 
+        if (is_first_stage) {
+            //first stage, elite placement
+            elite_pos = GameManager.g.ran.xoshiro_range(4);
+            if (elite_pos != 0) { generator_connect(4, 4, 3, 4); generator_connect(4, 4, 4, 3); } else { generator_connect(3, 3, 3, 4); generator_connect(3, 3, 4, 3); }
+            if (elite_pos != 1) { generator_connect(4, 6, 3, 6); generator_connect(4, 6, 4, 7); } else { generator_connect(3, 7, 3, 6); generator_connect(3, 7, 4, 7); }
+            if (elite_pos != 2) { generator_connect(6, 4, 7, 4); generator_connect(6, 4, 6, 3); } else { generator_connect(7, 3, 7, 4); generator_connect(7, 3, 6, 3); }
+            if (elite_pos != 3) { generator_connect(6, 6, 7, 6); generator_connect(6, 6, 6, 7); } else { generator_connect(7, 7, 7, 6); generator_connect(7, 7, 6, 7); }
+        } else {
+            generator_connect(5, 5, 4, 5);
+            generator_connect(5, 5, 5, 4);
+            generator_connect(5, 5, 6, 5);
+            generator_connect(5, 5, 5, 6);
+        }
+
+        //start location
         generator_connect(0, 0, 0, 1); generator_connect(0, 0, 1, 0);
         generator_connect(0, 10, 0, 9); generator_connect(0, 10, 1, 10);
         generator_connect(10, 0, 10, 1); generator_connect(10, 0, 9, 0);

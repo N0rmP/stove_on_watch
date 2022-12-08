@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class trivial_buttons : MonoBehaviour
 {
@@ -22,29 +23,42 @@ public class trivial_buttons : MonoBehaviour
 
     }
     public void reward_end() { 
-        GraphicManager.g.temp_reward_remove();
+        GraphicManager.g.reward_remove();
         GameManager.g.rew.init();
     }
 
     public void inventory_end() {
-        GraphicManager.g.temp_inventory_remove();
+        GraphicManager.g.inventory_remove();
     }
 
     public void detail_end() {
-        GraphicManager.g.temp_detail_remove();
+        GraphicManager.g.detail_remove();
+    }
+
+    public void event_end() {
+        if (!GameManager.g.cur_event.force_) {
+            GraphicManager.g.event_remove();
+            GameManager.g.cur_event.choice_complete = true;
+            GameManager.g.cur_event.is_event_end_ = true;
+        }
     }
 
     public void detail_confirm() {
         player p = GameManager.g.get_Plr();
-        p.shards -= 100;
+        p.set_shards(true, -100);
         p.actions_.Add(GraphicManager.g.inventory_selection_);
         p.action_inventory_.Remove(GraphicManager.g.inventory_selection_);
-        GraphicManager.g.temp_detail_remove();
+        GraphicManager.g.inventory_selection_.acquired();
+        GraphicManager.g.detail_remove();
         GraphicManager.g.inventory_update();
+    }
+
+    public void return_to_menu() {
+        SceneManager.LoadScene("Scenes/Menu");
     }
 
     public void temp_inventory() {
         GraphicManager.g.inventory_update();
-        GraphicManager.g.temp_inventory_recover();
+        GraphicManager.g.inventory_recover();
     }
 }

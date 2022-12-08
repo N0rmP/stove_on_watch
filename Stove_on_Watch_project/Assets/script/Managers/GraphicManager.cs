@@ -6,9 +6,15 @@ using TMPro;
 using System;
 using Newtonsoft.Json;
 using System.IO;
+using UnityEngine.UI.Extensions;
 
 public class GraphicManager : MonoBehaviour
 {
+    private float time;
+
+    public GameObject clear_particle;
+    public GameObject damage_particle;
+
     public static GraphicManager g;
     public GameObject canvas;
     public GameObject adventure_panel;
@@ -17,8 +23,7 @@ public class GraphicManager : MonoBehaviour
     private GameObject[,] node_buttons;
     private GameObject[] edges;
 
-    public GameObject Plr_hp;
-    public GameObject Plr_hope;
+    public GameObject Plr_board;
 
     public List<GameObject> event_UI;
 
@@ -35,6 +40,8 @@ public class GraphicManager : MonoBehaviour
     private List<GameObject> enemy_cur_action_list;
     //private List<GameObject> enemy_next_action_list;
     private List<GameObject> enemy_discarded_action_list;
+    public List<GameObject> range_nums;
+    public GameObject unused_range_num;
     public GameObject turn_end_button;  //★사용하지 않을 것이라 예상되면 삭제할 것
 
 
@@ -52,9 +59,15 @@ public class GraphicManager : MonoBehaviour
     private abst_Plr_action inventory_selection;
     public abst_Plr_action inventory_selection_ { get { return inventory_selection; } set { inventory_selection = value; } }
 
+    public GameObject curtain;
+
     private Dictionary<GameObject, bool> glowings;
-    private readonly Color glow_lighten = new Color(0.05f, 0.05f, 0.05f, 1f);
-    private readonly Color glow_darken = new Color(-0.05f, -0.05f, -0.05f, 1f);
+    private readonly Color glow_lighten = new Color(0.01f, 0.01f, 0.01f, 0f);
+    private Dictionary<GameObject, Vector3> movings;
+    private Dictionary<TextMeshProUGUI, float> fadings_text;
+    private Dictionary<Image, float> fadings_image;
+    private readonly Color fade_emerge = new Color(0f, 0f, 0f, 0.1f);
+    private Dictionary<TextMeshProUGUI, int> countings;
     public temp_json tj;
 
     private enum screen_type { screen_null, map, combat, event_screen, ability, shelter }
@@ -97,7 +110,7 @@ public class GraphicManager : MonoBehaviour
 
         combat_board_stack = new Stack<GameObject>();
         for (int i = 0; i < 5; i++) {
-            combat_board_stack.Push(Instantiate(combat_board_prefab, new Vector2(0, 1600), Quaternion.identity, combat_panel.transform));
+            combat_board_stack.Push(Instantiate(combat_board_prefab, new Vector2(2270f, -440f), Quaternion.identity, combat_panel.transform));
         }
 
         enemy_cur_action_list = new List<GameObject>();
@@ -107,15 +120,26 @@ public class GraphicManager : MonoBehaviour
         reward_buttons = new GameObject[10];
         for (int i = 0; i < 10; i++) {
             reward_buttons[i] = Instantiate(reward_button_prefab, new Vector2(2100f, 2200f), Quaternion.identity, canvas.transform);
-            //reward_buttons[i].transform.SetParent(reward_panel.transform, false);
+            reward_buttons[i].transform.SetParent(reward_panel.transform, false);
         }
 
         inventory_buttons = new List<GameObject>();
 
         glowings = new Dictionary<GameObject, bool>();
+        movings = new Dictionary<GameObject, Vector3>();
+        fadings_text = new Dictionary<TextMeshProUGUI, float>();
+        fadings_image = new Dictionary<Image, float>();
+        countings = new Dictionary<TextMeshProUGUI, int>();
     }
 
-    public void init() { }
+    public void init() {
+        time = 0f;
+        glowings.Clear();
+        movings.Clear();
+        fadings_text.Clear();
+        fadings_image.Clear();
+        countings.Clear();
+    }
 
     #region general
     public void set_text(GameObject tar, String con) {
@@ -123,18 +147,66 @@ public class GraphicManager : MonoBehaviour
     }
 
     public void set_image_color(GameObject tar, Color cor) {
+        //glow precedes other color change
+        foreach (GameObject g in glowings.Keys)
+            if (g == tar)
+                return;
         tar.GetComponent<Image>().color = cor;
     }
 
-    public void glow() {
-        foreach (GameObject g in glowings.Keys) {
+    public void set_image(GameObject tar, Sprite spr) {
+        tar.GetComponent<Image>().sprite = spr;
+    }
+
+    public temp_json get_json(string name) {    //it's used only when outer class uses json directly, GraphicManager doesnt use this
+        tj.init();
+        try {
+            tj = JsonConvert.DeserializeObject<temp_json>((Resources.Load(name, typeof(TextAsset)) as TextAsset).text);
+        } catch (Exception e) {
+            Debug.Log(name + " : json error");
+        }
+        return tj;
+    }
+
+    public void over() {
+        curtain.GetComponent<Image>().color = new Color(0f, 0f, 0f, 0f);
+        curtain.transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = "Game Over\nPress Anywhere To Continue";
+        curtain.transform.GetChild(0).GetComponent<TextMeshProUGUI>().color = new Color(1f, 0f, 0f, 0f);
+        curtain.SetActive(true);
+        fadings_add(curtain.GetComponent<Image>(), 0.5f);
+        fadings_add(curtain.transform.GetChild(0).GetComponent<TextMeshProUGUI>(), 0.5f);
+    }
+
+    public void clear() {
+        clear_particle.GetComponent<RectTransform>().localPosition =
+            GameManager.g.get_combat_enemies().get_selected().combat_board_.GetComponent<RectTransform>().localPosition + 
+            GameManager.g.get_combat_enemies().get_selected().combat_board_.transform.GetChild(2).GetComponent<RectTransform>().localPosition;
+        clear_particle.GetComponent<UIParticleSystem>().StartParticleEmission();
+
+        curtain.GetComponent<Image>().color = new Color(1f, 1f, 1f, 0f);
+        curtain.transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = "The City Retrieves its Light";
+        curtain.transform.GetChild(0).GetComponent<TextMeshProUGUI>().color = new Color(0f, 0f, 0f, 0f);
+        curtain.SetActive(true);
+        fadings_add(curtain.GetComponent<Image>(), 0.05f);
+        fadings_add(curtain.transform.GetChild(0).GetComponent<TextMeshProUGUI>(), 0.05f);
+    }
+
+    #region glow
+    private void glow() {
+        float temp_r = -1;
+        GameObject[] temp_g = new GameObject[glowings.Keys.Count];
+        glowings.Keys.CopyTo(temp_g, 0);
+        foreach (GameObject g in temp_g) {
             if (glowings[g])
                 g.GetComponent<Image>().color += glow_lighten;
             else
-                g.GetComponent<Image>().color += glow_darken;
+                g.GetComponent<Image>().color -= glow_lighten;
 
-            if (g.GetComponent<Image>().color.r > 0.9f || g.GetComponent<Image>().color.r > 0.1f)
-                glowings[g] = !glowings[g];
+            temp_r = g.GetComponent<Image>().color.r;
+            if ( temp_r > 0.99f) 
+                glowings[g] = false;
+            else if(temp_r < 0.01f)
+                glowings[g] = true;
         }
     }
 
@@ -146,11 +218,143 @@ public class GraphicManager : MonoBehaviour
         glowings.Remove(g);
     }
 
-    public temp_json get_json(string name) {    //it's used only when outer class uses json directly, GraphicManager doesnt use this
-        tj.init();
-        tj = JsonConvert.DeserializeObject<temp_json>((Resources.Load(name, typeof(TextAsset)) as TextAsset).text);
-        return tj;
+    public void glowings_clear() {
+        glowings.Clear();
     }
+    #endregion glow
+    #region move
+    private void move() {
+        GameObject[] temp_g = new GameObject[movings.Keys.Count];
+        movings.Keys.CopyTo(temp_g, 0);
+        foreach (GameObject g in temp_g) {
+            if (movings[g].magnitude < 1) {
+                g.GetComponent<RectTransform>().localPosition += movings[g];
+                movings.Remove(g);
+            } else {
+                g.GetComponent<RectTransform>().localPosition += movings[g] * 0.1f;
+                movings[g] *= 0.9f;
+            }
+        }
+    }
+
+    public void movings_add(GameObject g, Vector2 goal) {
+        if (movings.ContainsKey(g))
+            movings_remove(g);
+        Vector3 temp_v = (Vector3)goal - g.GetComponent<RectTransform>().localPosition;
+        movings[g] = temp_v;
+    }
+
+    public void movings_remove(GameObject g) {
+        movings.Remove(g);
+    }
+    public void movings_clear() {
+        movings.Clear();
+    }
+    #endregion move
+    #region fade
+    private void fade() {
+        TextMeshProUGUI[] temp_t = new TextMeshProUGUI[fadings_text.Keys.Count];
+        Image[] temp_i = new Image[fadings_image.Count];
+        fadings_text.Keys.CopyTo(temp_t, 0);
+        fadings_image.Keys.CopyTo(temp_i, 0);
+
+        //text
+        foreach (TextMeshProUGUI t in temp_t) {
+            if (fadings_text[t] > 0) {
+                //emerge
+                if (t.color.a > 0.95f) {
+                    t.color += new Color(0f, 0f, 0f, 1f);
+                    fadings_text.Remove(t);
+                } else
+                    t.color += fade_emerge * fadings_text[t];
+            } else {
+                //disapper
+                if (t.color.a < 0.05f) {
+                    t.color -= new Color(0f, 0f, 0f, 1f);
+                    fadings_text.Remove(t);
+                } else
+                    t.color += fade_emerge * fadings_text[t];
+            }    
+        }
+
+        //image
+        foreach (Image i in temp_i) {
+            if (fadings_image[i] > 0) {
+                //emerge
+                if (i.color.a > 0.95f) {
+                    i.color += new Color(0f, 0f, 0f, 1f);
+                    fadings_remove(i);
+                } else
+                    i.color += fade_emerge * fadings_image[i];
+            } else {
+                //disappear
+                if (i.color.a < 0.05f) {
+                    i.color -= new Color(0f, 0f, 0f, 1f);
+                    fadings_image.Remove(i);
+                } else
+                    i.color += fade_emerge * fadings_image[i];
+            }
+        }
+    }
+
+    public void fadings_text_add(GameObject tar, float emerge_rate) {
+        fadings_text[tar.GetComponent<TextMeshProUGUI>()] = emerge_rate;
+    }
+    public void fadings_add(TextMeshProUGUI tar, float emerge_rate) {
+        fadings_text[tar] = emerge_rate;
+    }
+    public void fadings_text_remove(TextMeshProUGUI tar) {
+        fadings_text.Remove(tar);
+    }
+
+    public void fadings_image_add(GameObject tar, float emerge_rate) {
+        fadings_image[tar.GetComponent<Image>()] = emerge_rate;
+    }
+    public void fadings_add(Image tar, float emerge_rate) {
+        fadings_image[tar] = emerge_rate;
+    }
+    public void fadings_remove(Image tar) {
+        fadings_image.Remove(tar);
+    }
+    public void fadiings_clear() {
+        fadings_image.Clear();
+        fadings_text.Clear();
+    }
+    #endregion fade
+    #region count
+    private void count() {
+        TextMeshProUGUI[] temp_t = new TextMeshProUGUI[countings.Count];
+        countings.Keys.CopyTo(temp_t, 0);
+
+        //★이걸 구현하려면 정말 코루틴뿐인 걸까?
+        int temp_i = -1;
+        foreach (TextMeshProUGUI t in temp_t) {
+            temp_i = int.Parse(t.text);
+            if (temp_i > countings[t]) {
+                temp_i--;
+                t.text = temp_i.ToString();
+            } else if (int.Parse(t.text) < countings[t]) {
+                temp_i++;
+                t.text = temp_i.ToString();
+            } else {
+                countings_remove(t);
+            }
+
+        }
+    }
+    public void countings_add(GameObject tar, int goal) {
+        TextMeshProUGUI temp_t = tar.GetComponent<TextMeshProUGUI>();
+        if (countings.ContainsKey(temp_t))
+            countings.Remove(temp_t);
+        countings[temp_t] = goal;
+    }
+    public void countings_remove(TextMeshProUGUI tar) {
+        countings.Remove(tar);
+    }
+    public void countings_clear() {
+        countings.Clear();
+    }
+    #endregion count
     #endregion general
 
     #region adventure
@@ -163,6 +367,9 @@ public class GraphicManager : MonoBehaviour
             for (int i = 2; i < 4; i++) {
                 if (temp_links[i] != null) {
                     edges[edge_count].GetComponent<edge>().liner(n1.gameObject.GetComponent<RectTransform>().localPosition, temp_links[i].gameObject.GetComponent<RectTransform>().localPosition);
+                    n1.set_adjacent_edge(i, edges[edge_count]);
+                    temp_links[i].set_adjacent_edge(i - 2, edges[edge_count]);
+                    edges[edge_count].SetActive(false);
                     edge_count++;
                 }
             }
@@ -184,23 +391,30 @@ public class GraphicManager : MonoBehaviour
         }
     }
 
+    public void damaged_effect(thing t) {
+        damage_particle.GetComponent<RectTransform>().localPosition =
+            t.combat_board_.GetComponent<RectTransform>().localPosition +
+            t.combat_board_.transform.GetChild(2).GetComponent<RectTransform>().localPosition;
+        damage_particle.GetComponent<UIParticleSystem>().StartParticleEmission();
+    }
+
     public void prepare_power_block(abst_power ap) {
         GameObject temp = power_block_stack.Pop();
         ap.set_block(temp);
         temp.GetComponent<power_block>().set_power(ap);
         temp.transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = ap.get_title();
-        temp.transform.SetParent(ap.get_owner().combat_board.transform.GetChild(3).GetChild(0).GetChild(0));
+        temp.transform.SetParent(ap.get_owner().combat_board_.transform.GetChild(3).GetChild(0).GetChild(0));
     }
 
     public void push_power_block(GameObject g) {
         g.GetComponent<power_block>().set_power(null);
         g.transform.SetParent(canvas.transform);
-        g.GetComponent<RectTransform>().localPosition = new Vector2(0, 2000);
+        g.GetComponent<RectTransform>().localPosition = new Vector2(0f, 1600f);
         power_block_stack.Push(g);
     }
 
     public void prepare_combat_board(abst_enemy ae) {
-        ae.combat_board = combat_board_stack.Pop();
+        ae.combat_board_ = combat_board_stack.Pop();
     }
 
     public void push_combat_board(GameObject g) {
@@ -239,7 +453,8 @@ public class GraphicManager : MonoBehaviour
         loop_num = 0;
         while (loop_num < goal_num) {
             enemy_cur_action_list[left_index].GetComponent<action_list_block>().assigned_action_ = ae.cur_action_list_[loop_num];
-            enemy_cur_action_list[left_index].GetComponent<action_list_block>().classify(0);
+            enemy_cur_action_list[left_index].GetComponent<Image>().color = new Color(0.3f, 0.3f, 0.3f, 1f);
+            glowings.Remove(enemy_cur_action_list[left_index]);
             left_index++; loop_num++;
             //enemy_cur_action_list[i].transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = ae.cur_action_list_[i].action_name_;
             //enemy_cur_action_list[i].SetActive(true);
@@ -250,6 +465,8 @@ public class GraphicManager : MonoBehaviour
         loop_num = 0;
         while (loop_num < goal_num) {
             enemy_cur_action_list[left_index].GetComponent<action_list_block>().assigned_power_ = ae.passives_[loop_num];
+            enemy_cur_action_list[left_index].GetComponent<Image>().color = new Color(0f, 0f, 0f, 1f);
+            glowings.Remove(enemy_cur_action_list[left_index]);
             left_index++; loop_num++;
         }
 
@@ -258,7 +475,8 @@ public class GraphicManager : MonoBehaviour
         loop_num = 0;
         while (loop_num < goal_num) {
             enemy_cur_action_list[left_index].GetComponent<action_list_block>().assigned_action_ = temp_next_actions[loop_num];
-            enemy_cur_action_list[left_index].GetComponent<action_list_block>().classify(2);
+            enemy_cur_action_list[left_index].GetComponent<Image>().color = new Color(0f, 0f, 0f, 1f);
+            glowings[enemy_cur_action_list[left_index]] = true;
             left_index++; loop_num++;
         }
 
@@ -305,7 +523,7 @@ public class GraphicManager : MonoBehaviour
                 temp.GetComponent<RectTransform>().anchorMax = new Vector2(1, 1);
                 temp.GetComponent<RectTransform>().pivot = new Vector2(1, 1);
                 temp.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, -100 * enemy_discarded_action_list.Count);
-                temp.GetComponent<action_list_block>().classify(0);
+                temp.GetComponent<Image>().color = new Color(0.3f, 0.3f, 0.3f, 1f);
             }
             list_g.Add(temp);
         }
@@ -325,6 +543,32 @@ public class GraphicManager : MonoBehaviour
         enemy_action_list.transform.GetChild(0).GetChild(0).GetComponent<TextMeshProUGUI>().text = "";
         enemy_action_list.transform.GetChild(0).GetChild(1).GetComponent<TextMeshProUGUI>().text = "";
         enemy_action_list.SetActive(false);
+    }
+
+    public void range_increase() {
+        unused_range_num.GetComponent<TextMeshProUGUI>().text = (GameManager.g.get_left_of_range() + 4).ToString();
+        unused_range_num.GetComponent<RectTransform>().localPosition = new Vector3(600f, 0f, 0f);
+        range_nums.Add(unused_range_num);
+        for (int i = 0; i < 6; i++) {
+            movings_add(range_nums[i], new Vector2(120 * (i - 1), 0f));
+        }
+        fadings_add(range_nums[0].GetComponent<TextMeshProUGUI>(), -2);
+        fadings_add(range_nums[5].GetComponent<TextMeshProUGUI>(), 2);
+        unused_range_num = range_nums[0];
+        range_nums.RemoveAt(0);
+    }
+
+    public void range_decrease() {
+        unused_range_num.GetComponent<TextMeshProUGUI>().text = (GameManager.g.get_left_of_range()).ToString();
+        unused_range_num.GetComponent<RectTransform>().localPosition = new Vector3(-120f, 0f, 0f);
+        range_nums.Insert(0,unused_range_num);
+        for (int i = 0; i < 6; i++) {
+            movings_add(range_nums[i], new Vector2(120 * i, 0f));
+        }
+        fadings_add(range_nums[0].GetComponent<TextMeshProUGUI>(), 2);
+        fadings_add(range_nums[5].GetComponent<TextMeshProUGUI>(), -2);
+        unused_range_num = range_nums[5];
+        range_nums.RemoveAt(5);
     }
     #endregion combat
 
@@ -347,14 +591,15 @@ public class GraphicManager : MonoBehaviour
             rewards_shard.amount_ = GameManager.g.rew.rewards_shard_;
             reward_buttons_[temp].GetComponent<reward_button>().set_reward(rewards_shard);
             reward_buttons_[temp].GetComponent<reward_button>().card_update();*/
-            while (++temp < 10) {
+            while (temp < 10) {
                 reward_buttons_[temp].SetActive(false);
+                temp++;
             }
         //} catch (Exception e) {
         //    Debug.Log(temp + "th reward setting error : " + e);
         //}
         GraphicManager.g.reward_update();
-        GraphicManager.g.temp_reward_recover();
+        GraphicManager.g.reward_recover();
     }
 
     public void reward_update() {
@@ -370,8 +615,9 @@ public class GraphicManager : MonoBehaviour
 
     #region event
     public void event_output(string name) {
-        tj.init();
-        tj = JsonConvert.DeserializeObject<temp_json>((Resources.Load(name, typeof(TextAsset)) as TextAsset).text);
+        temp_json temp_tj;
+        //tj = JsonConvert.DeserializeObject<temp_json>((Resources.Load("Event/"+name, typeof(TextAsset)) as TextAsset).text);
+        temp_tj = get_json("Event/" + name);
         event_UI[1].GetComponent<TextMeshProUGUI>().text = tj.s1;
         event_UI[2].GetComponent<TextMeshProUGUI>().text = tj.s2;
         for (int i = 0; i < 3; i++) {
@@ -400,83 +646,108 @@ public class GraphicManager : MonoBehaviour
             temp++;
         }
         inventory_panel_outter.transform.GetChild(0).transform.GetChild(1).GetComponent<TextMeshProUGUI>().text =
-            GameManager.g.get_Plr().shards.ToString();
+            GameManager.g.get_Plr().get_shards().ToString();
     }
 
     public void detail_init(abst_Plr_action a) {
         detail_panel[1].GetComponent<abst_Plr_action_image>().card_update(a);
         inventory_selection = a;
         try {
-            if (GameManager.g.get_Plr().get_location().event_here.event_name == "shelter") {
-                detail_panel[2].GetComponent<Button>().interactable = true;
+            if (GameManager.g.get_Plr().get_location().event_here_.GetType() == typeof(shelter)) {
+                if(GameManager.g.get_Plr().get_shards() > 99)
+                    detail_panel[2].GetComponent<Button>().interactable = true;
+                else
+                    detail_panel[2].GetComponent<Button>().interactable = false;
                 detail_panel[4].SetActive(false);
             } else {
                 detail_panel[2].GetComponent<Button>().interactable = false;
                 detail_panel[4].SetActive(true);
             }
         } catch (Exception e) { }
-        temp_detail_recover();
+        detail_recover();
     }
     #endregion inventory_shelter
 
     #region remove_recover
-    public void temp_combat_remove() {
-        combat_panel.GetComponent<RectTransform>().localPosition = combat_panel.GetComponent<RectTransform>().localPosition + new Vector3(0f, -1080f, 0f);
-        /*
-        foreach (GameObject g in combat_buttons) { g.GetComponent<RectTransform>().anchoredPosition = new Vector2 (g.GetComponent<RectTransform>().anchoredPosition.x, -640) ; }
-        turn_end_button.GetComponent<RectTransform>().anchoredPosition = new Vector2 (1060, turn_end_button.GetComponent<RectTransform>().anchoredPosition.y);
-        */
+    public void combat_remove() {
+        movings_add(combat_panel, new Vector2(0f, -1080f));
+        movings_add(Plr_board.transform.GetChild(3).gameObject, new Vector2(150f, -980f));
+        //combat_panel.GetComponent<RectTransform>().localPosition = combat_panel.GetComponent<RectTransform>().localPosition + new Vector3(0f, -1080f, 0f);
     }
-    public void temp_combat_recover() {
-        combat_panel.GetComponent<RectTransform>().localPosition = combat_panel.GetComponent<RectTransform>().localPosition + new Vector3(0f, 1080f, 0f);
-        /*
-        foreach (GameObject g in combat_buttons) { g.GetComponent<RectTransform>().anchoredPosition = new Vector2(g.GetComponent<RectTransform>().anchoredPosition.x, -360); }
-        turn_end_button.GetComponent<RectTransform>().anchoredPosition = new Vector2 (793, turn_end_button.GetComponent<RectTransform>().anchoredPosition.y);
-        */
+    public void combat_recover() {
+        movings_add(combat_panel, new Vector2(0f, 0f));
+        movings_add(Plr_board.transform.GetChild(3).gameObject, new Vector2(150f, 250f));
+        //combat_panel.GetComponent<RectTransform>().localPosition = combat_panel.GetComponent<RectTransform>().localPosition + new Vector3(0f, 1080f, 0f);
     }
 
-    public void temp_event_remove() {
-        event_UI[0].GetComponent<RectTransform>().localPosition = event_UI[0].GetComponent<RectTransform>().localPosition + new Vector3(800f, 0f, 0f);
-        //★main_screen 표시 방법 구상
+    public void event_remove() {
+        movings_add(event_UI[0], new Vector2(1380f, 0f));
+        movings_add(event_UI[6], new Vector2(1920f, 0f));
+        //event_UI[0].GetComponent<RectTransform>().localPosition = event_UI[0].GetComponent<RectTransform>().localPosition + new Vector3(800f, 0f, 0f);
     }
-    public void temp_event_recover() {
-        event_UI[0].GetComponent<RectTransform>().localPosition = event_UI[0].GetComponent<RectTransform>().localPosition + new Vector3(-800f, 0f, 0f);
-    }
-
-    public void temp_reward_remove() {
-        reward_panel.GetComponent<RectTransform>().localPosition = event_UI[0].GetComponent<RectTransform>().localPosition + new Vector3(1920f, 0f, 0f);
-        //★main_screen 표시 방법 구상
-    }
-    public void temp_reward_recover() {
-        reward_panel.GetComponent<RectTransform>().localPosition = new Vector3(0f, 0f, 0f);
+    public void event_recover() {
+        movings_add(event_UI[0], new Vector2(540f, 0f));
+        movings_add(event_UI[6], new Vector2(0f, 0f));
+        //event_UI[0].GetComponent<RectTransform>().localPosition = event_UI[0].GetComponent<RectTransform>().localPosition + new Vector3(-800f, 0f, 0f);
     }
 
-    public void temp_inventory_remove() {
-        inventory_panel_outter.GetComponent<RectTransform>().localPosition = event_UI[0].GetComponent<RectTransform>().localPosition + new Vector3(-1770f, 1000f, 0f);
-        //★main_screen 표시 방법 구상
+    public void reward_remove() {
+        movings_add(reward_panel, new Vector2(0f, 1080f));
+        //reward_panel.GetComponent<RectTransform>().localPosition = event_UI[0].GetComponent<RectTransform>().localPosition + new Vector3(1920f, 0f, 0f);
     }
-    public void temp_inventory_recover() {
-        inventory_panel_outter.GetComponent<RectTransform>().localPosition = new Vector3(0f, 0f, 0f);
+    public void reward_recover() {
+        movings_add(reward_panel, new Vector2(0f, 0f));
+        //reward_panel.GetComponent<RectTransform>().localPosition = new Vector3(0f, 0f, 0f);
     }
 
-    public void temp_detail_remove() { 
-        detail_panel[0].GetComponent<RectTransform>().localPosition = detail_panel[0].GetComponent<RectTransform>().localPosition + new Vector3(-840f, 0f, 0f);
-        detail_panel[3].GetComponent<RectTransform>().localPosition = detail_panel[0].GetComponent<RectTransform>().localPosition + new Vector3(-1920f, 0f, 0f);
+    public void inventory_remove() {
+        movings_add(inventory_panel_outter, new Vector2(0f, -1080f));
+        //inventory_panel_outter.GetComponent<RectTransform>().localPosition = event_UI[0].GetComponent<RectTransform>().localPosition + new Vector3(-1770f, 1000f, 0f);
     }
-    public void temp_detail_recover() {
-        detail_panel[0].GetComponent<RectTransform>().localPosition = detail_panel[0].GetComponent<RectTransform>().localPosition + new Vector3(840f, 0f, 0f);
-        detail_panel[3].GetComponent<RectTransform>().localPosition = new Vector3(0f, 0f, 0f);
+    public void inventory_recover() {
+        movings_add(inventory_panel_outter, new Vector2(0f, 0f));
+        //inventory_panel_outter.GetComponent<RectTransform>().localPosition = new Vector3(0f, 0f, 0f);
+    }
+
+    public void detail_remove() {
+        movings_add(detail_panel[0], new Vector2(-1380f, 0f));
+        movings_add(detail_panel[3], new Vector2(-1920f, 0f));
+        //detail_panel[0].GetComponent<RectTransform>().localPosition = detail_panel[0].GetComponent<RectTransform>().localPosition + new Vector3(-840f, 0f, 0f);
+        //detail_panel[3].GetComponent<RectTransform>().localPosition = detail_panel[0].GetComponent<RectTransform>().localPosition + new Vector3(-1920f, 0f, 0f);
+    }
+    public void detail_recover() {
+        movings_add(detail_panel[0], new Vector2(-540f, 0f));
+        movings_add(detail_panel[3], new Vector2(0f, 0f));
+        //detail_panel[0].GetComponent<RectTransform>().localPosition = detail_panel[0].GetComponent<RectTransform>().localPosition + new Vector3(840f, 0f, 0f);
+        //detail_panel[3].GetComponent<RectTransform>().localPosition = new Vector3(0f, 0f, 0f);
+    }
+
+    public void curtain_remove() {
+        curtain.GetComponent<Image>().color = new Color(0f, 0f, 0f, 1f);
+        curtain.SetActive(false);
+    }
+    public void curtain_recover() {
+        curtain.GetComponent<Image>().color = new Color(0f, 0f, 0f, 0f);
+        curtain.SetActive(true);
     }
     #endregion remove_recover
 
     public void FixedUpdate() {
         glow();
+        move();
+        fade();
+
+        time += Time.deltaTime;
+        if (time > 0.01f) {
+            count();
+            time = 0f;
+        }
     }
 
     void Awake()
     {
         if (g == null) { g = this; } else { Destroy(this.gameObject); }
-        DontDestroyOnLoad(this.gameObject);
+        //DontDestroyOnLoad(this.gameObject);
     }
 
     /*private void json_practice()

@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class linear_chaser : abst_chasable
 {
-    linear_chaser(abst_enemy e) : base(e) { }
+    public linear_chaser(abst_enemy e) : base(e) { }
 
     public override void search() {
         node temp_plr_loc = GameManager.g.get_Plr().get_location();

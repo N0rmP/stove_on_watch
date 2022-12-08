@@ -1,0 +1,8 @@
+{
+	"s1" : "Vault",
+	"s2" : "You found almost cracked vault. Might get stuff inside easily, but noise attracts additional monster into this city.",
+	"s" : [
+		"Shards +30, Enemy in the city +1",
+		"Leave"
+	]
+}
