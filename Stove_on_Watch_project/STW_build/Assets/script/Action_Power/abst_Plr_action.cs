@@ -1,0 +1,68 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public abstract class abst_Plr_action : abst_action
+{
+
+    protected int initial_max_cost;
+    protected int max_cost;
+    protected int cur_cooltime;
+    private int temp_cost;  //save the amount of cost usage between button click and actual use(), ★
+    protected bool is_savable;  //if max cost is described by ≤ then it's true, ★아마 카드 정보 표시할 때만 사용될 듯
+    public enum concepts { simple, complex, haste, calm, plan }
+    protected HashSet<concepts> tags;
+    protected player owner;
+
+    public abst_Plr_action() {
+        owner = GameManager.g.get_Plr();
+        tags = new HashSet<concepts>();
+        initial_max_cost = 0;
+        max_cost = 0;
+        cur_cooltime = 0;
+        is_savable = false;
+    }
+
+    public override void use() {
+        if (this.cur_cooltime <= 0 && (owner.get_cur_hope() >= max_cost))
+        {
+            //★!is_savable이라면 희망 비용 선택, 희망이 충분한지 검사, 충분하다면 비용을 지불하고 effect 실행
+            owner.set_cur_hope(true, -max_cost);
+            effect();
+            if (tags.Contains(concepts.simple)) { cur_cooltime = 1; }
+            else if (tags.Contains(concepts.complex)) { cur_cooltime = 3; }
+            else { cur_cooltime = 2; }
+            GameManager.g.last_used = this;
+        }
+        else {
+            Debug.Log("its in cooltime");
+        }
+    }
+
+    protected abstract void effect();
+
+    public virtual void acquired() { }
+
+    protected int cost_choice() {
+        //★슬라이더를 사용해 this.max_cost 이하의 희망 사용량 지정
+        return 0;
+    }
+    #region get_set
+    public int get_cur_cooltime() { return this.cur_cooltime; }
+    public void set_cur_cooltime(int i, bool is_plus = false) {
+        if (is_plus) { 
+            this.cur_cooltime = (this.cur_cooltime + i < 0) ? 0 : this.cur_cooltime + i; 
+        } else { 
+            this.cur_cooltime = (i < 0) ? 0 : i; 
+        }
+    }
+    public int get_cost() { return max_cost; }
+    public void set_cost(bool is_plus, int i) {
+        if (is_plus) {
+            max_cost += i;
+        } else {
+            max_cost = i;
+        }
+    }
+    #endregion get_set
+}

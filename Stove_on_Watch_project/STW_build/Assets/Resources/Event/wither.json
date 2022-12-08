@@ -1,0 +1,8 @@
+{
+	"s1" : "Wither",
+	"s2" : "Human body with flower head and dress is withering. She asks you for water.",
+	"s" : [
+		"Hope -50, player's hp +20",
+		"Leave"
+	]
+}

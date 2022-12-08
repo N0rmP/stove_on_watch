@@ -1,0 +1,8 @@
+{
+	"s1" : "Mercenary",
+	"s2" : "A number of people crouches depressed. Little encouragement may help.",
+	"s" : [
+		"Hope -100, When next combat begins attack 90",
+		"Leave"
+	]
+}

@@ -1,0 +1,8 @@
+{
+	"s1" : "First comer",
+	"s2" : "You found waste ruin. This place looks safe except the first_comer.",
+	"s" : [
+		"Defeat it, This place becomes Shelter",
+		"Leave"
+	]
+}
