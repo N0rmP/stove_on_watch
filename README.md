@@ -1,3 +1,4 @@
 # stove_on_watch
 
-mad bt unity 2021.3.6f1 (LTS)
+you can play game directly with
+  -stove_on_watch/Stove_on_Watch_project/STW_build/Stove_on_Watch_project.exe
